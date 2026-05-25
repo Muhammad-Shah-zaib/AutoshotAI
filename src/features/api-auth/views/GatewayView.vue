@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router'
 import { useAppStore } from '@/core/store/appStore'
 import { validateApiKey } from '../services/validateKey'
 import { Icon } from '@iconify/vue'
-import { PROVIDERS, PROVIDER_LABELS, DEFAULT_PROXY_URL } from '../constants'
+import { PROVIDERS, DEFAULT_PROXY_URL } from '../constants'
 import { validateSecretKey } from '@/features/gallery-export/services/storeService'
 
 const router = useRouter()

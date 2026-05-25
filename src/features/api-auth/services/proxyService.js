@@ -76,3 +76,35 @@ export async function generateViaProxy({ proxyUrl, secretKey, prompt, base64Imag
   const data = await res.json()
   return data.images || []
 }
+
+/**
+ * Generate text via the proxy backend.
+ *
+ * @param {object} params
+ * @param {string} params.proxyUrl       - Proxy base URL
+ * @param {string} params.secretKey      - Proxy secret key
+ * @param {string} params.prompt         - Text prompt
+ * @param {string} [params.base64Image]  - Base64 reference image (no data-uri prefix)
+ * @param {string} [params.mimeType]     - MIME type of the reference image
+ * @returns {Promise<string>}            - Generated text
+ */
+export async function generateTextViaProxy({ proxyUrl, secretKey, prompt, base64Image, mimeType }) {
+  const res = await fetch(`${proxyUrl}/api/generate-text`, {
+    method: 'POST',
+    headers: buildHeaders(secretKey),
+    body: JSON.stringify({
+      prompt,
+      referenceImage: base64Image || null,
+      mimeType: mimeType || null,
+    }),
+  })
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}))
+    const msg = err?.error || `Proxy text generation failed (HTTP ${res.status})`
+    throw Object.assign(new Error(msg), { status: res.status })
+  }
+
+  const data = await res.json()
+  return data.text || ''
+}

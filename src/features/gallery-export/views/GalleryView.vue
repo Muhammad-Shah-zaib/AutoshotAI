@@ -12,6 +12,7 @@ import { PROVIDER_LABELS, PROVIDER_COLORS } from '@/features/api-auth/constants'
 import { Icon } from '@iconify/vue'
 import ImageCard from '../components/ImageCard.vue'
 import AddProductForm from '../components/AddProductForm.vue'
+import BaseConfirmModal from '@/core/components/BaseConfirmModal.vue'
 import { validateSecretKey } from '../services/storeService'
 
 const router = useRouter()
@@ -20,6 +21,7 @@ const store = useAppStore()
 const isDownloadingAll = ref(false)
 const downloadProgress = ref(0)
 const showAddProductModal = ref(false)
+const showSuccessModal = ref(false)
 const secretKey = ref(localStorage.getItem('dhaga-store-key') || '')
 const isKeyValid = ref(false)
 
@@ -78,8 +80,7 @@ function handleNewBatch() {
 
 function handlePushSuccess() {
   showAddProductModal.value = false
-  // Optionally show a toast or notification here
-  alert('Product pushed to store successfully!')
+  showSuccessModal.value = true
 }
 
 </script>
@@ -186,8 +187,23 @@ function handlePushSuccess() {
       v-if="showAddProductModal"
       :generated-images="images"
       :secret-key="secretKey"
+      :api-key="store.state.apiKey"
+      :selected-category="store.state.selectedCategory"
       @close="showAddProductModal = false"
       @success="handlePushSuccess"
+    />
+
+    <!-- Success Confirmation Modal -->
+    <BaseConfirmModal
+      :show="showSuccessModal"
+      title="Pushed Successfully!"
+      message="Your product and generated images have been successfully published to your store."
+      confirm-label="Done"
+      secondary-label="New Batch"
+      type="success"
+      @confirm="showSuccessModal = false"
+      @secondary="handleNewBatch"
+      @close="showSuccessModal = false"
     />
   </div>
 </template>

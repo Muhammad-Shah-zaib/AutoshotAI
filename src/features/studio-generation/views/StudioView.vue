@@ -243,21 +243,6 @@ async function handleGenerate() {
           </div>
         </div>
 
-        <!-- Output Options -->
-        <div class="control-section">
-          <h3 class="control-heading">Output Options</h3>
-          <div class="bg-options">
-            <label class="bg-option">
-              <input type="checkbox" checked />
-              <span>Remove background</span>
-            </label>
-            <label class="bg-option">
-              <input type="checkbox" />
-              <span>Add drop shadow</span>
-            </label>
-          </div>
-        </div>
-
         <!-- Generate Error -->
         <Transition name="slide-fade">
           <div v-if="generationError" class="gen-error">
@@ -644,28 +629,6 @@ async function handleGenerate() {
 .prompt-textarea:focus {
   border-color: var(--color-electric);
   box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.15);
-}
-
-/* Output Options */
-.bg-options {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.bg-option {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  cursor: pointer;
-}
-
-.bg-option input[type='checkbox'] {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--color-electric);
 }
 
 /* Generation Error */

@@ -40,6 +40,8 @@
   --color-canvas: #111318;
   --color-elevated: #1d2024;
   --color-electric: #47a1ff;
+  --color-electric-rgb: 71, 161, 255;
+  --color-error-rgb: 248, 113, 113;
   --color-border: rgba(255, 255, 255, 0.06);
   --color-border-hover: rgba(255, 255, 255, 0.12);
   --color-text-primary: #f8fafc;

@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import BaseSelect from '@/core/components/BaseSelect.vue'
+import { useAppStore } from '@/core/store/appStore'
 import { getCategories, createProduct, uploadProductImage } from '../services/storeService'
 import { compressImage, dataURLtoFile } from '../services/imageCompression'
+import { generateProductDetails } from '../services/productAiService'
 
 const props = defineProps({
   generatedImages: {
@@ -13,14 +15,26 @@ const props = defineProps({
   secretKey: {
     type: String,
     required: true
+  },
+  apiKey: {
+    type: String,
+    default: ''
+  },
+  selectedCategory: {
+    type: String,
+    default: 'jerseys'
   }
 })
 
 const emit = defineEmits(['close', 'success'])
 
+const store = useAppStore()
+
 const categories = ref([])
 const isLoadingCategories = ref(true)
 const isSubmitting = ref(false)
+const isGeneratingAi = ref(false)
+const formMode = ref('choice')
 const error = ref('')
 
 const form = ref({
@@ -37,6 +51,33 @@ const form = ref({
 const selectedImageIds = ref(new Set())
 const primaryImageId = ref(null)
 
+async function generateAiDetails() {
+  if (!props.apiKey || !props.generatedImages.length) return
+  isGeneratingAi.value = true
+  try {
+    const result = await generateProductDetails({
+      apiKey: props.apiKey,
+      categoryKey: props.selectedCategory,
+      images: props.generatedImages,
+      apiProvider: store.state.apiProvider,
+      proxyUrl: store.state.proxyUrl,
+    })
+    if (result.name) form.value.name = result.name
+    if (result.description) form.value.description = result.description
+  } catch (err) {
+    console.warn('AI suggestions failed:', err.message)
+  } finally {
+    isGeneratingAi.value = false
+  }
+}
+
+async function pickMode(mode) {
+  formMode.value = 'form'
+  if (mode === 'ai') {
+    generateAiDetails()
+  }
+}
+
 onMounted(async () => {
   try {
     categories.value = await getCategories()
@@ -49,7 +90,6 @@ onMounted(async () => {
     isLoadingCategories.value = false
   }
 
-  // Default select all images
   props.generatedImages.forEach(img => selectedImageIds.value.add(img.id))
   if (props.generatedImages.length > 0) {
     primaryImageId.value = props.generatedImages[0].id
@@ -115,133 +155,179 @@ async function handleSubmit() {
 
 <template>
   <div class="modal-overlay" @click.self="emit('close')">
-    <div class="product-form-modal animate-slide-up">
+    <div class="product-form-modal animate-slide-up" :class="{ 'modal--choice': formMode === 'choice' }">
       <div class="modal-header">
         <div class="header-icon">
           <Icon icon="mdi:package-variant-plus" width="24" height="24" />
         </div>
         <div class="header-text">
           <h2>Push to Store</h2>
-          <p>Configure product details and archive to collection.</p>
+          <p>{{ formMode === 'choice' ? 'How would you like to fill in the product details?' : 'Configure product details and archive to collection.' }}</p>
         </div>
         <button class="close-btn" @click="emit('close')">
           <Icon icon="mdi:close" width="20" height="20" />
         </button>
       </div>
 
-      <div class="modal-content custom-scrollbar">
-        <div v-if="error" class="error-banner">
-          <Icon icon="mdi:alert-circle" width="18" height="18" />
-          <span>{{ error }}</span>
-        </div>
-
-        <div class="form-grid">
-          <!-- Basic Info -->
-          <div class="form-section span-2">
-            <h3 class="section-title">Basic Information</h3>
-            <div class="field-group">
-              <label>Product Name <span class="required">*</span></label>
-              <div class="input-wrapper">
-                <Icon icon="mdi:format-title" class="field-icon" />
-                <input v-model="form.name" type="text" placeholder="e.g. Handmade Crochet Scarf" />
-              </div>
-            </div>
-
-            <div class="grid-2">
-              <BaseSelect
-                  v-model="form.categoryId"
-                  :options="categories"
-                  label="Category"
-                  required
-                  icon="mdi:layers-outline"
-                  :disabled="isLoadingCategories"
-                  :placeholder="isLoadingCategories ? 'Loading categories...' : 'Select a category'"
-                />
-              <div class="field-group">
-                <label>Stock Quantity</label>
-                <div class="input-wrapper">
-                  <Icon icon="mdi:archive-outline" class="field-icon" />
-                  <input v-model="form.stockQty" type="number" min="0" />
-                </div>
-              </div>
-            </div>
-
-            <div class="field-group">
-              <label>Description</label>
-              <textarea v-model="form.description" rows="4" placeholder="Describe the craftsmanship..."></textarea>
-            </div>
+      <!-- ── Choice Screen ── -->
+      <div v-if="formMode === 'choice'" class="choice-body">
+        <button class="choice-card choice-card--ai" :disabled="!apiKey" @click="pickMode('ai')">
+          <div class="choice-card__icon">
+            <Icon icon="mdi:auto-fix" width="28" height="28" />
           </div>
-
-          <!-- Pricing -->
-          <div class="form-section">
-            <h3 class="section-title">Value & Visibility</h3>
-            <div class="field-group">
-              <label>Base Price (Rs) <span class="required">*</span></label>
-              <div class="input-wrapper">
-                <Icon icon="mdi:currency-usd" class="field-icon" />
-                <input v-model="form.basePrice" type="number" step="0.01" placeholder="0.00" />
-              </div>
-            </div>
-            <div class="field-group">
-              <label>Discount (%)</label>
-              <div class="input-wrapper">
-                <Icon icon="mdi:percent" class="field-icon" />
-                <input v-model="form.discountPercentage" type="number" min="0" max="100" />
-              </div>
-            </div>
-
-            <div class="toggle-group">
-              <div class="toggle-item">
-                <div class="toggle-label">
-                  <span class="main-label">Available</span>
-                  <span class="sub-label">Public in catalog</span>
-                </div>
-                <input type="checkbox" v-model="form.isAvailable" class="ios-switch" />
-              </div>
-              <div class="toggle-item">
-                <div class="toggle-label">
-                  <span class="main-label">Bespoke</span>
-                  <span class="sub-label">Customizable</span>
-                </div>
-                <input type="checkbox" v-model="form.isCustomizable" class="ios-switch" />
-              </div>
-            </div>
+          <div class="choice-card__text">
+            <span class="choice-card__title">Generate with AI</span>
+            <span class="choice-card__desc">Gemini writes a name &amp; description for you based on the product images.</span>
           </div>
+          <Icon icon="mdi:arrow-right" class="choice-card__arrow" />
+          <span v-if="!apiKey" class="choice-card__badge">No API key</span>
+        </button>
 
-          <!-- Image Selection -->
-          <div class="form-section span-3">
-            <h3 class="section-title">Select Images to Upload</h3>
-            <div class="image-selector-grid">
-              <div v-for="img in generatedImages" :key="img.id" class="image-select-card" :class="{
-                'is-selected': selectedImageIds.has(img.id),
-                'is-primary': primaryImageId === img.id
-              }" @click="toggleImage(img.id)">
-                <img :src="img.url" :alt="img.shotLabel" />
-                <div class="image-overlay">
-                  <div class="check-icon">
-                    <Icon :icon="selectedImageIds.has(img.id) ? 'mdi:check-circle' : 'mdi:circle-outline'" />
-                  </div>
-                  <span class="shot-badge">{{ img.shotLabel }}</span>
-                  <button v-if="selectedImageIds.has(img.id)" class="primary-toggle-btn"
-                    :class="{ 'active': primaryImageId === img.id }" @click.stop="primaryImageId = img.id">
-                    <Icon :icon="primaryImageId === img.id ? 'mdi:star' : 'mdi:star-outline'" />
-                    {{ primaryImageId === img.id ? 'Primary' : 'Set Primary' }}
-                  </button>
-                </div>
-              </div>
-            </div>
+        <button class="choice-card choice-card--manual" @click="pickMode('manual')">
+          <div class="choice-card__icon">
+            <Icon icon="mdi:pencil-outline" width="28" height="28" />
           </div>
-        </div>
-      </div>
-
-      <div class="modal-footer">
-        <button class="btn-ghost" @click="emit('close')" :disabled="isSubmitting">Cancel</button>
-        <button class="btn-primary" @click="handleSubmit" :disabled="isSubmitting">
-          <Icon v-if="isSubmitting" icon="mdi:loading" class="animate-spin" />
-          <Icon v-else icon="mdi:cloud-upload" />
-          <span>{{ isSubmitting ? 'Pushing to Store...' : 'Confirm & Push' }}</span>
+          <div class="choice-card__text">
+            <span class="choice-card__title">Set Manually</span>
+            <span class="choice-card__desc">Type the product name and description yourself.</span>
+          </div>
+          <Icon icon="mdi:arrow-right" class="choice-card__arrow" />
         </button>
       </div>
+
+      <!-- ── Form ── -->
+      <template v-else>
+        <div class="modal-content custom-scrollbar">
+          <div v-if="error" class="error-banner">
+            <Icon icon="mdi:alert-circle" width="18" height="18" />
+            <span>{{ error }}</span>
+          </div>
+
+          <div class="form-grid">
+            <!-- Basic Info -->
+            <div class="form-section span-2">
+              <h3 class="section-title">Basic Information</h3>
+              <div class="field-group">
+                <div class="label-row">
+                  <label>Product Name <span class="required">*</span></label>
+                  <button
+                    v-if="apiKey"
+                    class="ai-regen-btn"
+                    :disabled="isGeneratingAi"
+                    @click="generateAiDetails"
+                  >
+                    <Icon :icon="isGeneratingAi ? 'mdi:loading' : 'mdi:auto-fix'" :class="{ 'animate-spin': isGeneratingAi }" />
+                    {{ isGeneratingAi ? 'Generating...' : 'AI Suggest' }}
+                  </button>
+                </div>
+                <div class="input-wrapper" :class="{ 'shimmer': isGeneratingAi }">
+                  <Icon icon="mdi:format-title" class="field-icon" />
+                  <input v-model="form.name" type="text" placeholder="e.g. Handmade Crochet Scarf" :disabled="isGeneratingAi" />
+                </div>
+              </div>
+
+              <div class="grid-2">
+                <BaseSelect
+                    v-model="form.categoryId"
+                    :options="categories"
+                    label="Category"
+                    required
+                    icon="mdi:layers-outline"
+                    :disabled="isLoadingCategories"
+                    :placeholder="isLoadingCategories ? 'Loading categories...' : 'Select a category'"
+                  />
+                <div class="field-group">
+                  <label>Stock Quantity</label>
+                  <div class="input-wrapper">
+                    <Icon icon="mdi:archive-outline" class="field-icon" />
+                    <input v-model="form.stockQty" type="number" min="0" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label>Description</label>
+                <div class="desc-field-wrap" :class="{ 'shimmer': isGeneratingAi }">
+                  <textarea v-model="form.description" rows="4" placeholder="Describe the craftsmanship..." :disabled="isGeneratingAi"></textarea>
+                  <div v-if="isGeneratingAi" class="desc-loading-overlay">
+                    <Icon icon="mdi:loading" class="animate-spin" width="20" height="20" />
+                    <span>Gemini is writing...</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="form-section">
+              <h3 class="section-title">Value &amp; Visibility</h3>
+              <div class="field-group">
+                <label>Base Price (Rs) <span class="required">*</span></label>
+                <div class="input-wrapper">
+                  <Icon icon="mdi:currency-usd" class="field-icon" />
+                  <input v-model="form.basePrice" type="number" step="0.01" placeholder="0.00" />
+                </div>
+              </div>
+              <div class="field-group">
+                <label>Discount (%)</label>
+                <div class="input-wrapper">
+                  <Icon icon="mdi:percent" class="field-icon" />
+                  <input v-model="form.discountPercentage" type="number" min="0" max="100" />
+                </div>
+              </div>
+
+              <div class="toggle-group">
+                <div class="toggle-item">
+                  <div class="toggle-label">
+                    <span class="main-label">Available</span>
+                    <span class="sub-label">Public in catalog</span>
+                  </div>
+                  <input type="checkbox" v-model="form.isAvailable" class="ios-switch" />
+                </div>
+                <div class="toggle-item">
+                  <div class="toggle-label">
+                    <span class="main-label">Bespoke</span>
+                    <span class="sub-label">Customizable</span>
+                  </div>
+                  <input type="checkbox" v-model="form.isCustomizable" class="ios-switch" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Image Selection -->
+            <div class="form-section span-3">
+              <h3 class="section-title">Select Images to Upload</h3>
+              <div class="image-selector-grid">
+                <div v-for="img in generatedImages" :key="img.id" class="image-select-card" :class="{
+                  'is-selected': selectedImageIds.has(img.id),
+                  'is-primary': primaryImageId === img.id
+                }" @click="toggleImage(img.id)">
+                  <img :src="img.url" :alt="img.shotLabel" />
+                  <div class="image-overlay">
+                    <div class="check-icon">
+                      <Icon :icon="selectedImageIds.has(img.id) ? 'mdi:check-circle' : 'mdi:circle-outline'" />
+                    </div>
+                    <span class="shot-badge">{{ img.shotLabel }}</span>
+                    <button v-if="selectedImageIds.has(img.id)" class="primary-toggle-btn"
+                      :class="{ 'active': primaryImageId === img.id }" @click.stop="primaryImageId = img.id">
+                      <Icon :icon="primaryImageId === img.id ? 'mdi:star' : 'mdi:star-outline'" />
+                      {{ primaryImageId === img.id ? 'Primary' : 'Set Primary' }}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button class="btn-ghost" @click="emit('close')" :disabled="isSubmitting">Cancel</button>
+          <button class="btn-primary" @click="handleSubmit" :disabled="isSubmitting || isGeneratingAi">
+            <Icon v-if="isSubmitting" icon="mdi:loading" class="animate-spin" />
+            <Icon v-else icon="mdi:cloud-upload" />
+            <span>{{ isSubmitting ? 'Pushing to Store...' : 'Confirm &amp; Push' }}</span>
+          </button>
+        </div>
+      </template>
     </div>
   </div>
 </template>
@@ -627,5 +713,197 @@ textarea:focus {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
+}
+
+.label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.ai-regen-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-electric);
+  background: rgba(var(--color-electric-rgb), 0.08);
+  border: 1px solid rgba(var(--color-electric-rgb), 0.2);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.ai-regen-btn:hover:not(:disabled) {
+  background: rgba(var(--color-electric-rgb), 0.15);
+  border-color: rgba(var(--color-electric-rgb), 0.4);
+}
+
+.ai-regen-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+}
+
+.shimmer::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(var(--color-electric-rgb), 0.06) 40%,
+    rgba(var(--color-electric-rgb), 0.12) 50%,
+    rgba(var(--color-electric-rgb), 0.06) 60%,
+    transparent 100%
+  );
+  animation: shimmerMove 1.5s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 1;
+}
+
+@keyframes shimmerMove {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Choice Screen Styling */
+.modal--choice {
+  max-width: 500px !important;
+}
+
+.choice-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+}
+
+.choice-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.choice-card:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(var(--color-electric-rgb), 0.3);
+  transform: translateY(-2px);
+}
+
+.choice-card:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.choice-card__icon {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.choice-card--ai .choice-card__icon {
+  background: rgba(var(--color-electric-rgb), 0.1);
+  color: var(--color-electric);
+}
+
+.choice-card--manual .choice-card__icon {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-secondary);
+}
+
+.choice-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.choice-card__title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+
+.choice-card__desc {
+  font-size: 13px;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.choice-card__arrow {
+  color: var(--color-text-muted);
+  transition: transform 0.2s, color 0.2s;
+  flex-shrink: 0;
+}
+
+.choice-card:hover:not(:disabled) .choice-card__arrow {
+  transform: translateX(4px);
+  color: var(--color-electric);
+}
+
+.choice-card__badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-error);
+  background: rgba(var(--color-error-rgb), 0.1);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+}
+
+/* Description Loading Overlay */
+.desc-field-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.desc-loading-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 19, 24, 0.85);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: var(--radius-lg);
+  color: var(--color-text-primary);
+  font-size: 13px;
+  backdrop-filter: blur(2px);
+  z-index: 10;
 }
 </style>
