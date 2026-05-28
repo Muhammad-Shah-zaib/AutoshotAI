@@ -66,7 +66,7 @@ function handleToggle(shotKey) {
 }
 
 function handlePromptEdit(shotKey, event) {
-  store.setCustomPrompt(shotKey, event.target.value)
+  store.setCustomPrompt(shotKey, event.ttypescriptarget.value)
 }
 
 function handleImageUploaded(imageData) {
