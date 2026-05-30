@@ -10,6 +10,24 @@ jobs:
     environment: production
 
     steps:
+      - name: Debug Secret Lengths and Variables
+        run: |
+          echo "=== Debug Info ==="
+          echo "AWS_SG_ID length: ${#AWS_SG_ID}"
+          echo "AWS_ACCESS_KEY_ID length: ${#AWS_ACCESS_KEY_ID}"
+          echo "AWS_SECRET_ACCESS_KEY length: ${#AWS_SECRET_ACCESS_KEY}"
+          echo "EC2_SSH_KEY length: ${#EC2_SSH_KEY}"
+          echo "AWS_REGION value: $AWS_REGION"
+          echo "EC2_HOST value: $EC2_HOST"
+          echo "=================="
+        env:
+          AWS_SG_ID: ${{ secrets.AWS_SG_ID }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          EC2_HOST: ${{ vars.EC2_HOST }}
+
       - name: Get GitHub Runner IP
         id: ip
         run: echo "ipv4=$(curl -s https://checkip.amazonaws.com)" >> $GITHUB_OUTPUT
