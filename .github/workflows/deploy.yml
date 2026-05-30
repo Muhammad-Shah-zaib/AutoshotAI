@@ -69,25 +69,17 @@ jobs:
           host: ${{ vars.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          key_path: ""
+          port: 22
+          timeout: 30s
+          command_timeout: 10m
           script: |
-            # Load nvm so npm and node commands work in this SSH session
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-
-            # Go to the source code folder
             cd /opt/autoshot
-
-            # Pull the latest code from GitHub
             git pull origin main
-
-            # Install any new dependencies
             npm install
-
-            # Build the Vue app
             npm run build
-
-            # Copy the built files to where NGINX serves from
-            # The trailing dot means copy contents, not the folder itself
             cp -r dist/. /var/www/autoshot/
 
       - name: Close AWS Firewall
