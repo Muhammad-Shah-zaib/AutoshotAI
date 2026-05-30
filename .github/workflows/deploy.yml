@@ -43,7 +43,18 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
-
+      
+      - name: Verify Firewall Rule Added
+        run: |
+          echo "Runner IP: ${{ steps.ip.outputs.ipv4 }}"
+          aws ec2 describe-security-groups \
+            --group-ids ${{ secrets.AWS_SG_ID }} \
+            --query 'SecurityGroups[0].IpPermissions[?FromPort==`22`]'
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
+      
       - name: SSH into EC2 and Deploy
         uses: appleboy/ssh-action@v1.0.3
         with:
