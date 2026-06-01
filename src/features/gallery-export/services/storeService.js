@@ -14,10 +14,25 @@ export async function validateSecretKey(key) {
 }
 
 export async function getCategories() {
-  const response = await fetch('/api/categories')
-  if (!response.ok) throw new Error('Failed to fetch categories')
-  const result = await response.json()
-  return result.data || result
+  try {
+    const response = await fetch('/api/categories')
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '')
+      console.error(`[storeService] getCategories failed: Status ${response.status} ${response.statusText}. Response body:`, errorText)
+      throw new Error(`Failed to fetch categories: status ${response.status}`)
+    }
+    const contentType = response.headers.get('content-type') || ''
+    if (!contentType.includes('application/json')) {
+      const text = await response.text()
+      console.error(`[storeService] getCategories returned non-JSON content-type: ${contentType}. Content:`, text)
+      throw new Error('Expected JSON response but received HTML or other content type')
+    }
+    const result = await response.json()
+    return result.data || result
+  } catch (err) {
+    console.error('[storeService] getCategories exception:', err)
+    throw err
+  }
 }
 
 export async function createProduct(productData, secretKey) {

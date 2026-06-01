@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import BaseSelect from '@/core/components/BaseSelect.vue'
 import { useAppStore } from '@/core/store/appStore'
@@ -23,6 +23,10 @@ const props = defineProps({
   selectedCategory: {
     type: String,
     default: 'jerseys'
+  },
+  categories: {
+    type: Array,
+    default: () => []
   }
 })
 
@@ -78,15 +82,38 @@ async function pickMode(mode) {
   }
 }
 
-onMounted(async () => {
+async function loadCategories() {
+  isLoadingCategories.value = true
+  error.value = ''
+
   try {
     categories.value = await getCategories()
     if (categories.value.length > 0) {
       form.value.categoryId = categories.value[0].id
     }
   } catch (err) {
+    console.error('[AddProductForm] Failed to load categories:', err)
     error.value = 'Failed to load categories. Please check your connection.'
   } finally {
+    isLoadingCategories.value = false
+  }
+}
+
+watch(() => props.categories, (newVal) => {
+  if (newVal && newVal.length > 0) {
+    categories.value = newVal
+    if (!form.value.categoryId) {
+      form.value.categoryId = newVal[0].id
+    }
+    error.value = ''
+    isLoadingCategories.value = false
+  }
+}, { immediate: true })
+
+onMounted(async () => {
+  if (categories.value.length === 0) {
+    await loadCategories()
+  } else {
     isLoadingCategories.value = false
   }
 
@@ -154,7 +181,8 @@ async function handleSubmit() {
 </script>
 
 <template>
-  <div class="modal-overlay" @click.self="emit('close')">
+  <Teleport to="body">
+    <div class="modal-overlay" @click.self="emit('close')">
     <div class="product-form-modal animate-slide-up" :class="{ 'modal--choice': formMode === 'choice' }">
       <div class="modal-header">
         <div class="header-icon">
@@ -199,8 +227,19 @@ async function handleSubmit() {
       <template v-else>
         <div class="modal-content custom-scrollbar">
           <div v-if="error" class="error-banner">
-            <Icon icon="mdi:alert-circle" width="18" height="18" />
-            <span>{{ error }}</span>
+            <div class="error-info">
+              <Icon icon="mdi:alert-circle" width="18" height="18" />
+              <span>{{ error }}</span>
+            </div>
+            <button
+              type="button"
+              class="refetch-btn"
+              :disabled="isLoadingCategories"
+              @click="loadCategories"
+            >
+              <Icon icon="mdi:refresh" :class="{ 'animate-spin': isLoadingCategories }" width="14" height="14" />
+              <span>Retry</span>
+            </button>
           </div>
 
           <div class="form-grid">
@@ -330,6 +369,7 @@ async function handleSubmit() {
       </template>
     </div>
   </div>
+  </Teleport>
 </template>
 
 <style scoped>
@@ -414,9 +454,41 @@ async function handleSubmit() {
   border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   margin-bottom: 24px;
   font-size: 14px;
+}
+
+.error-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.refetch-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(var(--color-error-rgb), 0.15);
+  border: 1px solid rgba(var(--color-error-rgb), 0.3);
+  border-radius: var(--radius-md);
+  padding: 6px 12px;
+  color: var(--color-error);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.refetch-btn:hover:not(:disabled) {
+  background: rgba(var(--color-error-rgb), 0.25);
+  border-color: rgba(var(--color-error-rgb), 0.5);
+}
+
+.refetch-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .form-grid {
