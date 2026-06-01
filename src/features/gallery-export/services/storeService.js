@@ -3,8 +3,10 @@
  * Handles communication with the crochet-store-backend [DEPLOYED TO DIGITAL OCEAN].
  */
 
+import { API_BASE_URL } from '@/core/config.js';
+
 export async function validateSecretKey(key) {
-  const response = await fetch('/api/auth/validate-key', {
+  const response = await fetch(`${API_BASE_URL}/api/auth/validate-key`, {
     method: 'GET',
     headers: {
       'X-API-KEY': key,
@@ -15,7 +17,7 @@ export async function validateSecretKey(key) {
 
 export async function getCategories() {
   try {
-    const response = await fetch('/api/categories')
+    const response = await fetch(`${API_BASE_URL}/api/categories`)
     if (!response.ok) {
       const errorText = await response.text().catch(() => '')
       console.error(`[storeService] getCategories failed: Status ${response.status} ${response.statusText}. Response body:`, errorText)
@@ -36,7 +38,7 @@ export async function getCategories() {
 }
 
 export async function createProduct(productData, secretKey) {
-  const response = await fetch('/api/products', {
+  const response = await fetch(`${API_BASE_URL}/api/products`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -59,7 +61,7 @@ export async function uploadProductImage(productId, file, secretKey, options = {
   if (options.isPrimary !== undefined) formData.append('isPrimary', String(options.isPrimary))
   if (options.sortOrder !== undefined) formData.append('sortOrder', String(options.sortOrder))
 
-  const response = await fetch('/api/upload/product-image', {
+  const response = await fetch(`${API_BASE_URL}/api/upload/product-image`, {
     method: 'POST',
     headers: {
       'X-API-KEY': secretKey,
