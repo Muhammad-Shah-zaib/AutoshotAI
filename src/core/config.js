@@ -1,11 +1,3 @@
-/**
- * Configuration variables for the application.
- * You can also use environment variables in the future by adding a .env file
- * and referencing it here like: import.meta.env.VITE_API_BASE_URL
- */
-
-// In development, this is an empty string so it hits Vite's /api proxy.
-// In production, it points directly to the deployed Digital Ocean backend.
-export const API_BASE_URL = import.meta.env.PROD 
-  ? 'http://167.172.74.173' 
-  : '';
+// NGINX Reverse proxy is handling the api base url request in production
+// Vite dev server is proxying the api request to the backend server in development
+export const API_BASE_URL = ''
