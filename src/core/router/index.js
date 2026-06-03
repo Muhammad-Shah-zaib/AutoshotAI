@@ -4,11 +4,13 @@
  */
 import { createRouter, createWebHistory } from 'vue-router'
 
+/* ── Eager-loaded (lightweight, no images) ── */
+import AboutView from '@/features/about/views/AboutView.vue'
+
 /* ── Lazy-loaded feature views ── */
 const GatewayView = () => import('@/features/api-auth/views/GatewayView.vue')
 const StudioView = () => import('@/features/studio-generation/views/StudioView.vue')
 const GalleryView = () => import('@/features/gallery-export/views/GalleryView.vue')
-const AboutView = () => import('@/features/about/views/AboutView.vue')
 
 const routes = [
   {
