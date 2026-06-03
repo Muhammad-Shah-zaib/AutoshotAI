@@ -66,7 +66,7 @@ function handleToggle(shotKey) {
 }
 
 function handlePromptEdit(shotKey, event) {
-  store.setCustomPrompt(shotKey, event.ttypescriptarget.value)
+  store.setCustomPrompt(shotKey, event.target.value)
 }
 
 function handleImageUploaded(imageData) {
@@ -132,41 +132,44 @@ async function handleGenerate() {
 </script>
 
 <template>
-  <div class="studio-view animate-fade-in">
+  <div class="pb-10 animate-fade-in">
     <!-- Studio Header -->
-    <div class="studio-header">
+    <div class="mb-[28px] flex items-start justify-between gap-4 flex-wrap">
       <div>
-        <h1 class="studio-title">Studio — Dhaga Co.</h1>
-        <p class="studio-subtitle">
+        <h1 class="text-[22px] font-semibold text-[var(--color-text-primary)] tracking-[-0.02em]">Studio — Dhaga Co.</h1>
+        <p class="text-[14px] text-[var(--color-text-muted)] mt-1.5">
           Upload your product photo, pick a category, configure shot angles, then generate.
         </p>
       </div>
 
-      <div class="header-pills">
+      <div class="flex items-center gap-2 flex-wrap shrink-0">
         <!-- Provider badge -->
-        <div v-if="store.state.isAuthenticated" class="provider-badge" :style="providerStyle">
-          <span class="provider-dot"></span>
+        <div v-if="store.state.isAuthenticated" class="flex items-center gap-[7px] py-1 px-3 rounded-full text-[12px] font-semibold border border-solid whitespace-nowrap tracking-[0.01em]" :style="providerStyle">
+          <span class="w-1.5 h-1.5 rounded-full bg-current shadow-[0_0_6px_currentColor] animate-pulse-dot"></span>
           <span>{{ providerLabel }}</span>
         </div>
 
         <!-- Upload status pill -->
-        <div class="upload-status-pill" :class="hasImage ? 'pill--ready' : 'pill--waiting'">
-          <span class="pill-dot"></span>
+        <div
+          class="flex items-center gap-2 py-1.5 px-3.5 rounded-full text-[12px] font-medium border border-solid whitespace-nowrap shrink-0"
+          :class="hasImage ? 'text-[#22c55e] bg-[rgba(34,197,94,0.06)] border-[rgba(34,197,94,0.2)]' : 'text-[var(--color-text-muted)] bg-white/2 border-[var(--color-border)]'"
+        >
+          <span class="w-1.5 h-1.5 rounded-full bg-current" :class="{ 'shadow-[0_0_6px_rgba(34,197,94,0.5)]': hasImage }"></span>
           <span>{{ hasImage ? 'Product image ready' : 'Awaiting product image' }}</span>
         </div>
       </div>
     </div>
 
     <!-- Main Content Grid -->
-    <div class="studio-grid">
+    <div class="grid grid-cols-[0.8fr_1.7fr_1fr] gap-6 items-stretch max-[1200px]:grid-cols-1">
       <!-- LEFT COLUMN: Shot Toggles -->
-      <aside class="studio-sidebar">
-        <div class="sidebar-section">
-          <h3 class="sidebar-heading">Shot Angles</h3>
-          <p class="sidebar-desc">Toggle the camera perspectives you need.</p>
+      <aside class="flex flex-col gap-4">
+        <div>
+          <h3 class="text-[15px] font-semibold text-[var(--color-text-primary)]">Shot Angles</h3>
+          <p class="text-[13px] text-[var(--color-text-muted)] mt-1">Toggle the camera perspectives you need.</p>
         </div>
 
-        <div class="shot-cards-list">
+        <div class="flex flex-col gap-3">
           <ShotToggleCard v-for="shot in shotTypes" :key="shot.key" :shot-key="shot.key" :label="shot.label"
             :description="shot.description" :prompt="store.state.customPrompts[shot.key]"
             :active="store.state.shotToggles[shot.key]" :icon="shotIcons[shot.key]" @toggle="handleToggle"
@@ -174,26 +177,26 @@ async function handleGenerate() {
         </div>
 
         <!-- Volume Summary -->
-        <div class="volume-summary">
-          <div class="volume-row">
-            <span class="volume-label">Active Shots</span>
-            <span class="volume-value">{{ activeCount }} / {{ shotTypes.length }}</span>
+        <div class="p-4 bg-white/2 border border-[var(--color-border)] rounded-[var(--radius-lg)]">
+          <div class="flex justify-between items-center py-1.5 px-0">
+            <span class="text-[13px] text-[var(--color-text-muted)]">Active Shots</span>
+            <span class="text-[13px] font-semibold text-[var(--color-text-primary)]">{{ activeCount }} / {{ shotTypes.length }}</span>
           </div>
-          <div class="volume-row">
-            <span class="volume-label">Images to Generate</span>
-            <span class="volume-value">{{ activeCount }}</span>
+          <div class="flex justify-between items-center py-1.5 px-0 border-t border-[var(--color-border)]">
+            <span class="text-[13px] text-[var(--color-text-muted)]">Images to Generate</span>
+            <span class="text-[13px] font-semibold text-[var(--color-text-primary)]">{{ activeCount }}</span>
           </div>
-          <div class="volume-row">
-            <span class="volume-label">Category</span>
-            <span class="volume-value category-value">
+          <div class="flex justify-between items-center py-1.5 px-0 border-t border-[var(--color-border)]">
+            <span class="text-[13px] text-[var(--color-text-muted)]">Category</span>
+            <span class="text-[13px] font-semibold text-[var(--color-text-primary)] category-value">
               <Icon :icon="PRODUCT_CATEGORIES[store.state.selectedCategory]?.icon" class="inline-icon"
                 style="font-size: 1.2em; vertical-align: middle;" />
               {{ PRODUCT_CATEGORIES[store.state.selectedCategory]?.label }}
             </span>
           </div>
-          <div class="volume-row">
-            <span class="volume-label">Image</span>
-            <span class="volume-value" :class="hasImage ? 'status-ready' : 'status-missing'">
+          <div class="flex justify-between items-center py-1.5 px-0 border-t border-[var(--color-border)]">
+            <span class="text-[13px] text-[var(--color-text-muted)]">Image</span>
+            <span class="text-[13px] font-semibold text-[var(--color-text-primary)]" :class="hasImage ? 'text-[#22c55e]' : 'text-[var(--color-error)]'">
               <Icon :icon="hasImage ? 'mdi:check-circle' : 'mdi:alert-circle'" class="inline-icon"
                 style="vertical-align: middle; margin-right: 4px;" />
               {{ hasImage ? 'Uploaded' : 'Required' }}
@@ -203,41 +206,41 @@ async function handleGenerate() {
       </aside>
 
       <!-- CENTER: Image Upload -->
-      <section class="studio-center">
-        <div class="center-label-row">
-          <span class="center-label">Product Image</span>
-          <span class="center-required">Required to generate</span>
+      <section class="flex flex-col gap-2.5">
+        <div class="flex items-center justify-between">
+          <span class="text-[14px] font-semibold text-[var(--color-text-primary)]">Product Image</span>
+          <span class="text-[11px] font-semibold text-[var(--color-primary)] bg-[var(--color-primary-container)] py-0.5 px-2.5 rounded-full">Required to generate</span>
         </div>
-        <div class="upload-card">
+        <div class="bg-[var(--color-surface-container)] border border-[var(--color-border)] rounded-[var(--radius-xl)] p-5 transition-colors duration-200 min-h-[360px] flex flex-col">
           <ImageUploader @uploaded="handleImageUploaded" @cleared="handleImageCleared" />
         </div>
       </section>
 
       <!-- RIGHT COLUMN: Controls -->
-      <aside class="studio-controls">
+      <aside class="flex flex-col gap-5 pr-[2px] min-h-[calc(100vh-160px)]">
         <!-- Product Category -->
-        <div class="control-section">
-          <h3 class="control-heading">Product Category</h3>
-          <p class="control-subheading">Select your item type — prompts update automatically.</p>
-          <div class="category-grid">
-            <button v-for="cat in categories" :key="cat.key" class="category-chip"
-              :class="{ 'category-chip--active': store.state.selectedCategory === cat.key }"
+        <div class="py-4 px-5 bg-[var(--color-surface-container)] border border-[var(--color-border)] rounded-[var(--radius-lg)]">
+          <h3 class="text-[14px] font-semibold text-[var(--color-text-primary)] mb-1.5">Product Category</h3>
+          <p class="text-[12px] text-[var(--color-text-muted)] mb-3.5 leading-[1.5]">Select your item type — prompts update automatically.</p>
+          <div class="flex flex-col gap-1.5">
+            <button v-for="cat in categories" :key="cat.key" class="flex items-center gap-2.5 py-2 px-3.5 font-sans text-[13px] font-medium text-[var(--color-text-secondary)] bg-white/3 border border-[var(--color-border)] rounded-[var(--radius-DEFAULT)] cursor-pointer transition-all duration-200 ease-out text-left w-full hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)] hover:bg-white/5"
+              :class="{ 'bg-[var(--color-primary-container)] border-[var(--color-primary)] text-[var(--color-primary)]': store.state.selectedCategory === cat.key }"
               @click="selectCategory(cat.key)" :title="cat.description">
-              <Icon :icon="cat.icon" class="cat-icon" />
-              <span class="cat-label">{{ cat.label }}</span>
+              <Icon :icon="cat.icon" class="text-[16px] leading-[1] shrink-0" />
+              <span class="leading-[1.2]">{{ cat.label }}</span>
             </button>
           </div>
         </div>
 
         <!-- Multi-Angle Prompts -->
-        <div class="control-section">
-          <h3 class="control-heading">Multi-Angle Prompts</h3>
-          <p class="control-subheading">Edit to fine-tune each shot before generating.</p>
-          <div class="prompt-fields">
+        <div class="py-4 px-5 bg-[var(--color-surface-container)] border border-[var(--color-border)] rounded-[var(--radius-lg)]">
+          <h3 class="text-[14px] font-semibold text-[var(--color-text-primary)] mb-1.5">Multi-Angle Prompts</h3>
+          <p class="text-[12px] text-[var(--color-text-muted)] mb-3.5 leading-[1.5]">Edit to fine-tune each shot before generating.</p>
+          <div class="flex flex-col gap-3.5">
             <div v-for="shot in shotTypes" :key="shot.key" v-show="store.state.shotToggles[shot.key]"
-              class="prompt-field-group">
+              class="flex flex-col gap-1.5 transition-opacity duration-200">
               <label class="typo-label">{{ shot.label }} Prompt</label>
-              <textarea class="prompt-textarea" :value="store.state.customPrompts[shot.key]" rows="6"
+              <textarea class="w-full p-2.5 px-3 text-[12px] font-sans text-[var(--color-on-surface)] bg-white/4 border border-[var(--color-border)] rounded-[var(--radius-DEFAULT)] resize-y outline-none transition-all duration-200 ease-out leading-[1.5] focus:border-[var(--color-electric)] focus:shadow-[0_0_0_2px_rgba(0,112,243,0.15)]" :value="store.state.customPrompts[shot.key]" rows="6"
                 @input="handlePromptEdit(shot.key, $event)"></textarea>
             </div>
           </div>
@@ -245,26 +248,26 @@ async function handleGenerate() {
 
         <!-- Generate Error -->
         <Transition name="slide-fade">
-          <div v-if="generationError" class="gen-error">
+          <div v-if="generationError" class="flex items-start gap-2 py-2.5 px-3.5 text-[13px] text-[var(--color-error)] bg-[rgba(147,0,10,0.08)] border border-[rgba(255,180,171,0.12)] rounded-[var(--radius-DEFAULT)] leading-[1.5]">
             <Icon icon="mdi:alert-circle-outline" width="16" height="16" />
             {{ generationError }}
           </div>
         </Transition>
 
         <!-- Generate Button -->
-        <div class="generate-wrap">
+        <div class="sticky bottom-6 mt-auto z-[100] flex flex-col gap-2 bg-[var(--color-canvas)] p-4 rounded-[var(--radius-xl)] border border-[var(--color-border)] shadow-[0_-4px_20px_rgba(0,0,0,0.4)] max-[1200px]:w-full">
           <!-- Tooltip when disabled -->
-          <p v-if="!hasImage" class="generate-hint">
+          <p v-if="!hasImage" class="text-[12px] text-[var(--color-text-muted)] text-center leading-[1.4]">
             Upload a product image above to unlock generation
           </p>
-          <p v-else-if="activeCount === 0" class="generate-hint">
+          <p v-else-if="activeCount === 0" class="text-[12px] text-[var(--color-text-muted)] text-center leading-[1.4]">
             Select a shot angle on the left
           </p>
 
-          <button id="generate-btn" class="btn-primary generate-btn" :disabled="!canGenerate" @click="handleGenerate">
+          <button id="generate-btn" class="btn-primary w-full py-3.5 px-6 text-[15px] relative overflow-hidden disabled:opacity-45 disabled:cursor-not-allowed" :disabled="!canGenerate" @click="handleGenerate">
             <template v-if="isGenerating">
-              <div class="progress-bar-container">
-                <div class="progress-bar" :style="{ width: progress + '%' }"></div>
+              <div class="absolute inset-0 bg-black/30">
+                <div class="h-full bg-[rgba(0,112,243,0.5)] transition-all duration-300" :style="{ width: progress + '%' }"></div>
               </div>
               <span>Generating... {{ progress }}%</span>
             </template>
@@ -280,53 +283,11 @@ async function handleGenerate() {
 </template>
 
 <style scoped>
-.studio-view {
-  padding-bottom: 40px;
-}
-
-/* Header */
-.studio-header {
-  margin-bottom: 28px;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.header-pills {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-
-/* Provider Badge */
-.provider-badge {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 5px 13px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid;
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-}
-
 .provider-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 6px currentColor;
   animation: pulse-dot 2s ease-in-out infinite;
 }
 
 @keyframes pulse-dot {
-
   0%,
   100% {
     opacity: 1;
@@ -335,368 +296,6 @@ async function handleGenerate() {
   50% {
     opacity: 0.4;
   }
-}
-
-.studio-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  letter-spacing: -0.02em;
-}
-
-.studio-subtitle {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  margin-top: 6px;
-}
-
-/* Upload Status Pill */
-.upload-status-pill {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 14px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 500;
-  border: 1px solid var(--color-border);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.pill--ready {
-  color: #22c55e;
-  background: rgba(34, 197, 94, 0.06);
-  border-color: rgba(34, 197, 94, 0.2);
-}
-
-.pill--waiting {
-  color: var(--color-text-muted);
-  background: rgba(255, 255, 255, 0.02);
-}
-
-.pill-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-}
-
-.pill--ready .pill-dot {
-  box-shadow: 0 0 6px rgba(34, 197, 94, 0.5);
-}
-
-/* Grid Layout */
-.studio-grid {
-  display: grid;
-  grid-template-columns: 0.8fr 1.7fr 1fr;
-  gap: 24px;
-  align-items: stretch;
-}
-
-@media (max-width: 1200px) {
-  .studio-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Sidebar */
-.studio-sidebar {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.sidebar-heading {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.sidebar-desc {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  margin-top: 4px;
-}
-
-.shot-cards-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.volume-summary {
-  padding: 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-.volume-row {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 7px 0;
-}
-
-.volume-row+.volume-row {
-  border-top: 1px solid var(--color-border);
-}
-
-.volume-label {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
-.volume-value {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.category-value {
-  font-size: 12px;
-  color: var(--color-primary);
-  text-align: right;
-  max-width: 130px;
-  line-height: 1.3;
-}
-
-.status-ready {
-  color: #22c55e;
-  font-size: 12px;
-}
-
-.status-missing {
-  color: var(--color-error);
-  font-size: 12px;
-}
-
-/* Center Upload */
-.studio-center {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.center-label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.center-label {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.center-required {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-primary);
-  background: var(--color-primary-container);
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
-}
-
-.upload-card {
-  background: var(--color-surface-container);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: 20px;
-  transition: border-color 0.2s ease;
-  min-height: 360px;
-  display: flex;
-  flex-direction: column;
-}
-
-/* Right Controls */
-.studio-controls {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-  padding-right: 2px;
-  min-height: calc(100vh - 160px);
-}
-
-.control-section {
-  padding: 18px 20px;
-  background: var(--color-surface-container);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-}
-
-.control-heading {
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: 6px;
-}
-
-.control-subheading {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  margin-bottom: 14px;
-  line-height: 1.5;
-}
-
-/* Category Grid */
-.category-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.category-chip {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 9px 14px;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-DEFAULT);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  text-align: left;
-  width: 100%;
-}
-
-.category-chip:hover {
-  border-color: var(--color-border-hover);
-  color: var(--color-text-primary);
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.category-chip--active {
-  background: var(--color-primary-container);
-  border-color: var(--color-primary);
-  color: var(--color-primary);
-}
-
-.cat-icon {
-  font-size: 16px;
-  line-height: 1;
-  flex-shrink: 0;
-}
-
-.cat-label {
-  line-height: 1.2;
-}
-
-/* Prompt Textareas */
-.prompt-fields {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.prompt-field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  transition: opacity 0.2s ease;
-}
-
-.prompt-field-group--disabled {
-  opacity: 0.35;
-  pointer-events: none;
-}
-
-.prompt-textarea {
-  width: 100%;
-  padding: 10px 12px;
-  font-size: 12px;
-  font-family: var(--font-sans);
-  color: var(--color-on-surface);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-DEFAULT);
-  resize: vertical;
-  outline: none;
-  transition: all 0.2s ease;
-  line-height: 1.5;
-}
-
-.prompt-textarea::placeholder {
-  color: var(--color-text-muted);
-}
-
-.prompt-textarea:focus {
-  border-color: var(--color-electric);
-  box-shadow: 0 0 0 2px rgba(0, 112, 243, 0.15);
-}
-
-/* Generation Error */
-.gen-error {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 14px;
-  font-size: 13px;
-  color: var(--color-error);
-  background: rgba(147, 0, 10, 0.08);
-  border: 1px solid rgba(255, 180, 171, 0.12);
-  border-radius: var(--radius-DEFAULT);
-  line-height: 1.5;
-}
-
-/* Generate wrap + hint */
-.generate-wrap {
-  position: sticky;
-  bottom: 24px;
-  margin-top: auto;
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  background: var(--color-canvas);
-  padding: 16px;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--color-border);
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
-}
-
-@media (max-width: 1200px) {
-  .generate-wrap {
-    width: 100%;
-  }
-}
-
-.generate-hint {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  text-align: center;
-  line-height: 1.4;
-}
-
-.generate-btn {
-  width: 100%;
-  padding: 14px 24px;
-  font-size: 15px;
-  position: relative;
-  overflow: hidden;
-}
-
-.generate-btn:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.progress-bar-container {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.3);
-}
-
-.progress-bar {
-  height: 100%;
-  background: rgba(0, 112, 243, 0.5);
-  transition: width 0.3s ease;
 }
 
 /* Transition */

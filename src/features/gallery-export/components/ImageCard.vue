@@ -27,24 +27,24 @@ async function handleDownload() {
 </script>
 
 <template>
-  <div class="image-card" :id="`image-card-${image.id}`">
+  <div class="group bg-white/2 border border-[var(--color-border)] rounded-[var(--radius-xl)] overflow-hidden transition-all duration-250 ease-out hover:border-[var(--color-border-hover)] hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)]" :id="`image-card-${image.id}`">
     <!-- Image Preview -->
-    <div class="image-preview">
+    <div class="relative w-full aspect-square overflow-hidden bg-[var(--color-elevated)]">
       <!-- Shimmer Loading State -->
-      <div v-if="!imageLoaded" class="image-shimmer shimmer"></div>
+      <div v-if="!imageLoaded" class="absolute inset-0 z-10 shimmer"></div>
       <img
         :src="image.url"
         :alt="image.name"
-        class="preview-img"
-        :class="{ 'preview-img--loaded': imageLoaded }"
+        class="w-full h-full object-cover transition-opacity duration-500 ease-out"
+        :class="imageLoaded ? 'opacity-100' : 'opacity-0'"
         @load="imageLoaded = true"
         loading="lazy"
       />
 
       <!-- Overlay on hover -->
-      <div class="image-overlay">
+      <div class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 transition-opacity duration-250 ease-out group-hover:opacity-100">
         <button
-          class="overlay-download-btn"
+          class="w-12 h-12 rounded-full border border-white/20 bg-white/10 backdrop-blur-[8px] text-white cursor-pointer flex items-center justify-center transition-all duration-200 ease-out hover:bg-[var(--color-electric)] hover:border-[var(--color-electric)] hover:scale-110"
           @click.stop="handleDownload"
           :disabled="isDownloading"
           :title="`Download ${image.name}`"
@@ -55,156 +55,22 @@ async function handleDownload() {
     </div>
 
     <!-- Card Footer -->
-    <div class="image-meta">
-      <div class="meta-header">
-        <h4 class="image-name">{{ image.name }}</h4>
-        <span class="image-shot-badge">{{ image.shotLabel }}</span>
+    <div class="p-[18px] flex flex-col gap-2.5">
+      <div class="flex items-center justify-between gap-2">
+        <h4 class="text-[15px] font-semibold text-[var(--color-text-primary)] whitespace-nowrap overflow-hidden text-ellipsis">{{ image.name }}</h4>
+        <span class="text-[11px] font-medium text-[var(--color-electric)] bg-[rgba(0,112,243,0.1)] py-[3px] px-2.5 rounded-full whitespace-nowrap shrink-0">{{ image.shotLabel }}</span>
       </div>
-      <div class="meta-details">
+      <div class="flex items-center gap-1.5 text-[12px] text-[var(--color-text-muted)]">
         <span class="meta-item">Shot: {{ image.resolution }}</span>
-        <span class="meta-sep">•</span>
+        <span class="opacity-40">•</span>
         <span class="meta-item">{{ image.format }}</span>
       </div>
 
       <!-- Download Button -->
-      <button class="btn-secondary download-btn" @click="handleDownload" :disabled="isDownloading">
+      <button class="btn-secondary w-full py-2 px-4 text-[13px] mt-1" @click="handleDownload" :disabled="isDownloading">
         <Icon icon="mdi:download" width="16" height="16" />
         <span>{{ isDownloading ? 'Downloading...' : 'Download' }}</span>
       </button>
     </div>
   </div>
 </template>
-
-<style scoped>
-.image-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  transition: all 0.25s ease;
-}
-
-.image-card:hover {
-  border-color: var(--color-border-hover);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-}
-
-/* Image Preview */
-.image-preview {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  overflow: hidden;
-  background: var(--color-elevated);
-}
-
-.image-shimmer {
-  position: absolute;
-  inset: 0;
-  z-index: 1;
-}
-
-.preview-img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  opacity: 0;
-  transition: opacity 0.5s ease;
-}
-
-.preview-img--loaded {
-  opacity: 1;
-}
-
-/* Hover overlay */
-.image-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  transition: opacity 0.25s ease;
-}
-
-.image-card:hover .image-overlay {
-  opacity: 1;
-}
-
-.overlay-download-btn {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.overlay-download-btn:hover {
-  background: var(--color-electric);
-  border-color: var(--color-electric);
-  transform: scale(1.1);
-}
-
-/* Meta */
-.image-meta {
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.meta-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-}
-
-.image-name {
-  font-size: 15px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.image-shot-badge {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--color-electric);
-  background: rgba(0, 112, 243, 0.1);
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.meta-details {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--color-text-muted);
-}
-
-.meta-sep {
-  opacity: 0.4;
-}
-
-.download-btn {
-  width: 100%;
-  padding: 8px 16px;
-  font-size: 13px;
-  margin-top: 4px;
-}
-</style>

@@ -49,6 +49,7 @@
   --color-text-muted: #64748b;
 
   /* ── Spacing ── */
+  --spacing: 0.25rem;
   --spacing-unit: 4px;
   --spacing-gutter: 24px;
   --spacing-margin: 40px;
@@ -75,8 +76,6 @@
 *::before,
 *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 html {

@@ -21,172 +21,45 @@ const statusText = computed(() => (props.active ? 'Active' : 'Inactive'))
 </script>
 
 <template>
-  <div class="shot-card" :class="{ 'shot-card--active': active }" @click="emit('toggle', shotKey)">
+  <div
+    class="p-5 rounded-[var(--radius-lg)] cursor-pointer select-none transition-all duration-250 ease-out border"
+    :class="active ? 'border-[var(--color-primary)] bg-[var(--color-primary-container)]' : 'border-[var(--color-border)] bg-[var(--color-surface-container)] hover:border-[var(--color-border-hover)] hover:bg-white/3'"
+    @click="emit('toggle', shotKey)"
+  >
     <!-- Card Header -->
-    <div class="shot-card-header">
-      <div class="shot-icon"><Icon :icon="icon" /></div>
-      <div class="shot-info">
-        <span class="shot-label">{{ label }}</span>
-        <span class="shot-desc">{{ description }}</span>
+    <div class="flex items-center gap-3.5">
+      <div class="text-[24px] w-11 h-11 flex items-center justify-center bg-white/4 rounded-[var(--radius-md)] shrink-0">
+        <Icon :icon="icon" />
+      </div>
+      <div class="flex-1 flex flex-col gap-[4px]">
+        <span class="text-[15px] font-medium transition-colors duration-200" :class="active ? 'text-[var(--color-primary)]' : 'text-[var(--color-text-primary)]'">{{ label }}</span>
+        <span class="text-[12px] text-[var(--color-text-muted)] leading-[1.4]">{{ description }}</span>
       </div>
       <!-- Toggle Switch -->
-      <div class="toggle-switch" :class="{ 'toggle-switch--on': active }">
-        <div class="toggle-knob"></div>
+      <div
+        class="w-11 h-6 rounded-full p-[2px] cursor-pointer transition-colors duration-250 ease-out shrink-0"
+        :class="active ? 'bg-[var(--color-primary)]' : 'bg-[var(--color-surface-high)]'"
+      >
+        <div
+          class="w-5 h-5 bg-[var(--color-on-primary)] rounded-full transition-transform duration-250 ease-out shadow-[0_1px_3px_rgba(0,0,0,0.3)]"
+          :class="active ? 'translate-x-5' : ''"
+        ></div>
       </div>
     </div>
 
     <!-- Prompt Preview -->
-    <div class="shot-prompt" v-if="active && prompt">
+    <div class="mt-4 pt-3.5 border-t border-[var(--color-border)] flex flex-col gap-1.5" v-if="active && prompt">
       <span class="typo-label">PROMPT</span>
-      <p class="prompt-text">{{ prompt }}</p>
+      <p class="text-[13px] text-[var(--color-text-secondary)] leading-[1.5]">{{ prompt }}</p>
     </div>
 
     <!-- Status Badge -->
-    <div class="shot-status">
-      <span class="status-dot" :class="{ 'status-dot--active': active }"></span>
-      <span class="status-text">{{ statusText }}</span>
+    <div class="flex items-center gap-1.5 mt-3.5">
+      <span
+        class="w-1.5 h-1.5 rounded-full transition-colors duration-200 ease-out"
+        :class="active ? 'bg-[#10b981] shadow-[0_0_6px_rgba(16,185,129,0.4)]' : 'bg-[var(--color-text-muted)]'"
+      ></span>
+      <span class="text-[11px] text-[var(--color-text-muted)] font-medium uppercase tracking-[0.05em]">{{ statusText }}</span>
     </div>
   </div>
 </template>
-
-<style scoped>
-.shot-card {
-  padding: 20px;
-  background: var(--color-surface-container);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  cursor: pointer;
-  transition: all 0.25s ease;
-  user-select: none;
-}
-
-.shot-card:hover {
-  border-color: var(--color-border-hover);
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.shot-card--active {
-  border-color: var(--color-primary);
-  background: var(--color-primary-container);
-}
-
-.shot-card--active .shot-label {
-  color: var(--color-primary);
-}
-
-.shot-card--active:hover {
-  background: var(--color-primary-container);
-  opacity: 1;
-}
-
-.shot-card-header {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-
-.shot-icon {
-  font-size: 24px;
-  width: 44px;
-  height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: var(--radius-md);
-  flex-shrink: 0;
-}
-
-.shot-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.shot-label {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-text-primary);
-}
-
-.shot-desc {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  line-height: 1.4;
-}
-
-/* Toggle Switch */
-.toggle-switch {
-  width: 44px;
-  height: 24px;
-  background: var(--color-surface-high);
-  border-radius: var(--radius-full);
-  padding: 2px;
-  cursor: pointer;
-  transition: background 0.25s ease;
-  flex-shrink: 0;
-}
-
-.toggle-switch--on {
-  background: var(--color-primary);
-}
-
-.toggle-knob {
-  width: 20px;
-  height: 20px;
-  background: var(--color-on-primary);
-  border-radius: 50%;
-  transition: transform 0.25s ease;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-}
-
-.toggle-switch--on .toggle-knob {
-  transform: translateX(20px);
-}
-
-/* Prompt Preview */
-.shot-prompt {
-  margin-top: 16px;
-  padding-top: 14px;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.prompt-text {
-  font-size: 13px;
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-}
-
-/* Status */
-.shot-status {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 14px;
-}
-
-.status-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--color-text-muted);
-  transition: background 0.2s ease;
-}
-
-.status-dot--active {
-  background: #10b981;
-  box-shadow: 0 0 6px rgba(16, 185, 129, 0.4);
-}
-
-.status-text {
-  font-size: 11px;
-  color: var(--color-text-muted);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-</style>

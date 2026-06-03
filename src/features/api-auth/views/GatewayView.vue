@@ -1,7 +1,7 @@
 <script setup>
 /**
  * GatewayView — Step 1: API Key / Secret Key Authentication
- * Three providers: Gemini | OpenRouter | Vertex AI Proxy
+ * Three providers: Gemini | OpenRouter | Proxy
  */
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
@@ -76,53 +76,53 @@ async function handleValidate() {
 </script>
 
 <template>
-  <div class="gateway-container">
+  <div class="flex items-center justify-center min-h-[calc(100vh-190px)] relative animate-fade-in">
     <!-- Ambient Background Glow -->
-    <div class="ambient-glow"></div>
+    <div class="absolute top-[30%] left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-[radial-gradient(circle,rgba(71,161,246,0.1)_0%,transparent_70%)] pointer-events-none"></div>
 
     <!-- Gateway Card -->
-    <div class="gateway-card animate-fade-in">
+    <div class="w-full max-w-[460px] flex flex-col items-center gap-6 p-10 px-9 bg-[var(--color-surface-container)] border border-white/4 rounded-[var(--radius-xl)] relative z-[1] shadow-[0_20px_50px_-10px_rgba(0,0,0,0.5)]">
       <!-- Info Button -->
-      <button class="gateway-info-btn" @click="router.push({ name: 'about' })" title="About AutoShot AI">
+      <button class="absolute top-5 right-5 bg-transparent border border-[var(--color-border)] text-[var(--color-text-secondary)] py-1.5 px-3 rounded-[var(--radius-DEFAULT)] font-sans text-[12px] font-medium cursor-pointer flex items-center gap-1.5 transition-all duration-200 ease-out z-10 hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)] hover:bg-white/4" @click="router.push({ name: 'about' })" title="About AutoShot AI">
         <Icon icon="mdi:information-outline" width="16" height="16" />
         <span>Info</span>
       </button>
 
       <!-- Icon -->
-      <div class="gateway-icon">
+      <div class="mb-1 opacity-70">
         <Icon icon="mdi:security" width="40" height="40" style="color: var(--color-electric)" />
       </div>
 
       <!-- Header -->
-      <div class="gateway-header">
-        <h1 class="gateway-title">AutoShot-AI Studio</h1>
-        <p class="gateway-subtitle">
+      <div class="text-center">
+        <h1 class="text-[24px] font-semibold text-[var(--color-text-primary)] tracking-[-0.02em] mb-2">AutoShot-AI Studio</h1>
+        <p class="text-[14px] text-[var(--color-text-muted)] leading-[1.6]">
           Securely connect your preferred AI engine<br />
           and start generating product shots instantly.
         </p>
       </div>
 
       <!-- Provider Toggle -->
-      <div class="provider-toggle">
+      <div class="w-full flex flex-col gap-2">
         <span class="typo-label">CHOOSE AI ENGINE</span>
-        <div class="toggle-group">
+        <div class="flex bg-white/3 border border-[var(--color-border)] rounded-[var(--radius-DEFAULT)] overflow-hidden">
           <button
-            class="toggle-btn"
-            :class="{ 'toggle-btn--active': provider === PROVIDERS.GEMINI }"
+            class="flex-1 py-2 px-4 border-none bg-transparent font-sans text-[13px] font-medium cursor-pointer transition-all duration-200 ease-out"
+            :class="provider === PROVIDERS.GEMINI ? 'bg-[var(--color-primary)] text-[var(--color-on-primary)] shadow-[0_4px_12px_rgba(71,161,255,0.2)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] hover:bg-white/3'"
             @click="provider = PROVIDERS.GEMINI"
           >
             Gemini
           </button>
           <button
-            class="toggle-btn"
-            :class="{ 'toggle-btn--active': provider === PROVIDERS.OPENROUTER }"
+            class="flex-1 py-2 px-4 border-none bg-transparent font-sans text-[13px] font-medium cursor-pointer transition-all duration-200 ease-out"
+            :class="provider === PROVIDERS.OPENROUTER ? 'bg-[var(--color-primary)] text-[var(--color-on-primary)] shadow-[0_4px_12px_rgba(71,161,255,0.2)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] hover:bg-white/3'"
             @click="provider = PROVIDERS.OPENROUTER"
           >
             OpenRouter
           </button>
           <button
-            class="toggle-btn toggle-btn--proxy"
-            :class="{ 'toggle-btn--active': provider === PROVIDERS.PROXY }"
+            class="flex-1 py-2 px-4 border-none bg-transparent font-sans text-[13px] font-medium cursor-pointer transition-all duration-200 ease-out"
+            :class="provider === PROVIDERS.PROXY ? 'bg-[var(--color-primary)] text-[var(--color-on-primary)] shadow-[0_4px_12px_rgba(71,161,255,0.2)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text-secondary)] hover:bg-white/3'"
             @click="provider = PROVIDERS.PROXY"
           >
             Proxy
@@ -132,7 +132,7 @@ async function handleValidate() {
 
       <!-- Proxy URL Input (only when proxy selected) -->
       <Transition name="slide-fade">
-        <div v-if="isProxy" class="key-input-group">
+        <div v-if="isProxy" class="w-full flex flex-col gap-2">
           <label class="typo-label" for="proxy-url-input">PROXY URL</label>
           <input
             id="proxy-url-input"
@@ -141,24 +141,24 @@ async function handleValidate() {
             placeholder="http://localhost:4000"
             class="input-field"
           />
-          <p class="proxy-hint">Base URL of your vertex-ai-proxy server</p>
+          <p class="text-[11px] text-[var(--color-text-muted)] mt-0.5">Base URL of your vertex-ai-proxy server</p>
         </div>
       </Transition>
 
       <!-- API / Secret Key Input -->
-      <div class="key-input-group">
+      <div class="w-full flex flex-col gap-2">
         <label class="typo-label" for="api-key-input">{{ keyLabel }}</label>
-        <div class="input-wrapper">
+        <div class="relative">
           <input
             id="api-key-input"
             :type="showKey ? 'text' : 'password'"
             v-model="apiKey"
             :placeholder="keyPlaceholder"
-            class="input-field"
+            class="input-field pr-11"
             @keydown.enter="handleValidate"
           />
           <button
-            class="eye-btn"
+            class="absolute right-2 top-1/2 -translate-y-1/2 bg-none border-none text-[var(--color-text-muted)] cursor-pointer p-1 flex items-center justify-center transition-colors duration-200 hover:text-[var(--color-text-secondary)]"
             @click="showKey = !showKey"
             :title="showKey ? 'Hide key' : 'Show key'"
             type="button"
@@ -169,19 +169,19 @@ async function handleValidate() {
       </div>
 
       <!-- Store Secret Key Input (Optional) -->
-      <div class="key-input-group">
+      <div class="w-full flex flex-col gap-2">
         <label class="typo-label" for="store-key-input">STORE SECRET KEY (OPTIONAL)</label>
-        <div class="input-wrapper">
+        <div class="relative">
           <input
             id="store-key-input"
             :type="showStoreKey ? 'text' : 'password'"
             v-model="storeSecretKey"
             placeholder="For 'Push to Store' features..."
-            class="input-field"
+            class="input-field pr-11"
             @keydown.enter="handleValidate"
           />
           <button
-            class="eye-btn"
+            class="absolute right-2 top-1/2 -translate-y-1/2 bg-none border-none text-[var(--color-text-muted)] cursor-pointer p-1 flex items-center justify-center transition-colors duration-200 hover:text-[var(--color-text-secondary)]"
             @click="showStoreKey = !showStoreKey"
             :title="showStoreKey ? 'Hide key' : 'Show key'"
             type="button"
@@ -193,7 +193,7 @@ async function handleValidate() {
 
 
       <!-- Security Notice -->
-      <div class="security-notice">
+      <div class="flex items-center gap-2 text-[12px] text-[var(--color-text-muted)] w-full">
         <Icon icon="mdi:lock-outline" width="14" height="14" />
         <span v-if="isProxy">Your secret key is stored locally and used only to authenticate with your proxy</span>
         <span v-else>Your key is stored locally and never sent to our servers</span>
@@ -201,7 +201,7 @@ async function handleValidate() {
 
       <!-- Error Message -->
       <Transition name="slide-fade">
-        <div v-if="validationError" class="error-message">
+        <div v-if="validationError" class="flex items-center gap-2 w-full py-2.5 px-3.5 text-[13px] text-[var(--color-error)] bg-[rgba(147,0,10,0.1)] border border-[rgba(255,180,171,0.15)] rounded-[var(--radius-DEFAULT)]">
           <Icon icon="mdi:alert-circle-outline" width="16" height="16" />
           {{ validationError }}
         </div>
@@ -210,12 +210,12 @@ async function handleValidate() {
       <!-- Submit Button -->
       <button
         id="validate-key-btn"
-        class="btn-primary validate-btn"
+        class="btn-primary w-full py-3 px-6 text-[15px] mt-1"
         :class="{ 'animate-pulse-glow': isValidating }"
         :disabled="!canSubmit"
         @click="handleValidate"
       >
-        <Icon v-if="isValidating" icon="mdi:loading" class="spinner" width="18" height="18" />
+        <Icon v-if="isValidating" icon="mdi:loading" class="animate-spin" width="18" height="18" />
         <span v-if="isValidating">Validating...</span>
         <span v-else>Connect &amp; Continue</span>
       </button>
@@ -224,206 +224,7 @@ async function handleValidate() {
 </template>
 
 <style scoped>
-.gateway-container {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: calc(100vh - 190px);
-  position: relative;
-}
-
-.ambient-glow {
-  position: absolute;
-  top: 30%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(71, 161, 246, 0.1) 0%, transparent 70%);
-  pointer-events: none;
-}
-
-.gateway-card {
-  width: 100%;
-  max-width: 460px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 24px;
-  padding: 40px 36px;
-  background: var(--color-surface-container);
-  border: 1px solid rgba(255, 255, 255, 0.04);
-  border-radius: var(--radius-xl);
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.5);
-}
-
-.gateway-info-btn {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text-secondary);
-  padding: 6px 12px;
-  border-radius: var(--radius-DEFAULT);
-  font-family: var(--font-sans);
-  font-size: 12px;
-  font-weight: 500;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s ease;
-  z-index: 10;
-}
-
-.gateway-info-btn:hover {
-  border-color: var(--color-border-hover);
-  color: var(--color-text-primary);
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.gateway-icon {
-  margin-bottom: 4px;
-  opacity: 0.7;
-}
-
-.gateway-header {
-  text-align: center;
-}
-
-.gateway-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  letter-spacing: -0.02em;
-  margin-bottom: 8px;
-}
-
-.gateway-subtitle {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  line-height: 1.6;
-}
-
-.provider-toggle {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.toggle-group {
-  display: flex;
-  gap: 0;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-DEFAULT);
-  overflow: hidden;
-}
-
-.toggle-btn {
-  flex: 1;
-  padding: 8px 16px;
-  border: none;
-  background: transparent;
-  color: var(--color-text-muted);
-  font-family: var(--font-sans);
-  font-size: 13px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.toggle-btn--proxy.toggle-btn--active {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-}
-
-.toggle-btn--active {
-  background: var(--color-primary);
-  color: var(--color-on-primary);
-  box-shadow: 0 4px 12px rgba(71, 161, 255, 0.2);
-}
-
-.proxy-hint {
-  font-size: 11px;
-  color: var(--color-text-muted);
-  margin-top: 2px;
-}
-
-.toggle-btn:hover:not(.toggle-btn--active) {
-  color: var(--color-text-secondary);
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.key-input-group {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.input-wrapper {
-  position: relative;
-}
-
-.input-wrapper .input-field {
-  padding-right: 44px;
-}
-
-.eye-btn {
-  position: absolute;
-  right: 8px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  color: var(--color-text-muted);
-  cursor: pointer;
-  padding: 4px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s ease;
-}
-
-.eye-btn:hover {
-  color: var(--color-text-secondary);
-}
-
-.security-notice {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
-  color: var(--color-text-muted);
-  width: 100%;
-}
-
-.error-message {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  padding: 10px 14px;
-  font-size: 13px;
-  color: var(--color-error);
-  background: rgba(147, 0, 10, 0.1);
-  border: 1px solid rgba(255, 180, 171, 0.15);
-  border-radius: var(--radius-DEFAULT);
-}
-
-.validate-btn {
-  width: 100%;
-  padding: 12px 24px;
-  font-size: 15px;
-  margin-top: 4px;
-}
-
-.spinner {
+.animate-spin {
   animation: spin 1s linear infinite;
 }
 

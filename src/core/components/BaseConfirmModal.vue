@@ -91,124 +91,52 @@ onUnmounted(() => {
 
 <template>
   <Transition name="fade">
-    <div v-if="show" class="modal-overlay" @click.self="handleCancel">
-      <div class="confirm-modal-card animate-slide-up" role="dialog" aria-modal="true">
-        
-        <div class="modal-header">
-          <div class="header-icon" :style="{ color: typeConfig[type].color }">
+    <div
+      v-if="show"
+      class="fixed inset-0 bg-black/70 backdrop-blur-[8px] z-[1100] flex items-center justify-center p-5"
+      @click.self="handleCancel"
+    >
+      <div
+        class="w-full max-w-[480px] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-2xl)] flex flex-col shadow-2xl animate-slide-up"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div class="p-6 border-b border-[var(--color-border)] flex items-center gap-4">
+          <div class="flex items-center justify-center shrink-0 text-[24px]" :style="{ color: typeConfig[type].color }">
             <Icon :icon="typeConfig[type].icon" width="24" height="24" />
           </div>
           <div class="header-text">
-            <h2>{{ title }}</h2>
+            <h2 class="text-[18px] font-semibold text-[var(--color-text-primary)] leading-[1.2]">{{ title }}</h2>
           </div>
-          <button class="close-btn" @click="handleCancel">
+          <button
+            class="ml-auto p-2 rounded-full text-[var(--color-text-muted)] transition-all duration-200 bg-transparent border-none cursor-pointer flex items-center justify-center hover:bg-white/5 hover:text-[var(--color-text-primary)]"
+            @click="handleCancel"
+          >
             <Icon icon="mdi:close" width="20" height="20" />
           </button>
         </div>
 
-        <div class="modal-content">
+        <div class="p-6 text-[14px] leading-[1.5] text-[var(--color-text-secondary)]">
           <p>{{ message }}</p>
         </div>
 
-        <div class="modal-footer">
+        <div class="py-5 px-6 border-t border-[var(--color-border)] flex items-center justify-end gap-3">
           <button v-if="cancelLabel" class="btn-ghost" @click="handleCancel">
             {{ cancelLabel }}
           </button>
           <button v-if="secondaryLabel" class="btn-secondary" @click="handleSecondary">
             {{ secondaryLabel }}
           </button>
-          <button class="btn-primary" @click="handleConfirm">
+          <button class="btn-primary hover:!transform-none" @click="handleConfirm">
             {{ confirmLabel }}
           </button>
         </div>
-
       </div>
     </div>
   </Transition>
 </template>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-  z-index: 1100;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.confirm-modal-card {
-  width: 100%;
-  max-width: 480px;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-2xl);
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-2xl);
-}
-
-.modal-header {
-  padding: 24px;
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.header-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  font-size: 24px;
-}
-
-.header-text h2 {
-  font-size: 18px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  line-height: 1.2;
-}
-
-.close-btn {
-  margin-left: auto;
-  padding: 8px;
-  border-radius: 50%;
-  color: var(--color-text-muted);
-  transition: all 0.2s;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--color-text-primary);
-}
-
-.modal-content {
-  padding: 24px;
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--color-text-secondary);
-}
-
-.modal-footer {
-  padding: 20px 24px;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
 /* Animations */
 .animate-slide-up {
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
@@ -234,9 +162,5 @@ onUnmounted(() => {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
-}
-
-.btn-primary:hover {
-  transform: none !important;
 }
 </style>

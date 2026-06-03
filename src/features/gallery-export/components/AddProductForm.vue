@@ -182,91 +182,115 @@ async function handleSubmit() {
 
 <template>
   <Teleport to="body">
-    <div class="modal-overlay" @click.self="emit('close')">
-    <div class="product-form-modal animate-slide-up" :class="{ 'modal--choice': formMode === 'choice' }">
-      <div class="modal-header">
-        <div class="header-icon">
-          <Icon icon="mdi:package-variant-plus" width="24" height="24" />
+    <div
+      class="fixed inset-0 bg-black/70 backdrop-blur-[8px] z-[1000] flex items-center justify-center p-5"
+      @click.self="emit('close')"
+    >
+      <div
+        class="w-full max-h-[90vh] bg-[var(--color-surface)] border border-[var(--color-border)] rounded-[var(--radius-2xl)] flex flex-col shadow-2xl animate-slide-up"
+        :class="formMode === 'choice' ? 'max-w-[500px]' : 'max-w-[900px]'"
+      >
+        <div class="p-6 border-b border-[var(--color-border)] flex items-center gap-4">
+          <div class="w-12 h-12 bg-[rgba(var(--color-electric-rgb),0.1)] text-[var(--color-electric)] rounded-[var(--radius-xl)] flex items-center justify-center">
+            <Icon icon="mdi:package-variant-plus" width="24" height="24" />
+          </div>
+          <div class="header-text">
+            <h2 class="text-[20px] font-semibold text-[var(--color-text-primary)]">Push to Store</h2>
+            <p class="text-[14px] text-[var(--color-text-muted)]">
+              {{ formMode === 'choice' ? 'How would you like to fill in the product details?' : 'Configure product details and archive to collection.' }}
+            </p>
+          </div>
+          <button
+            class="ml-auto p-2 rounded-full text-[var(--color-text-muted)] transition-all duration-200 hover:bg-white/5 hover:text-[var(--color-text-primary)]"
+            @click="emit('close')"
+          >
+            <Icon icon="mdi:close" width="20" height="20" />
+          </button>
         </div>
-        <div class="header-text">
-          <h2>Push to Store</h2>
-          <p>{{ formMode === 'choice' ? 'How would you like to fill in the product details?' : 'Configure product details and archive to collection.' }}</p>
-        </div>
-        <button class="close-btn" @click="emit('close')">
-          <Icon icon="mdi:close" width="20" height="20" />
-        </button>
-      </div>
 
-      <!-- ── Choice Screen ── -->
-      <div v-if="formMode === 'choice'" class="choice-body">
-        <button class="choice-card choice-card--ai" :disabled="!apiKey" @click="pickMode('ai')">
-          <div class="choice-card__icon">
-            <Icon icon="mdi:auto-fix" width="28" height="28" />
-          </div>
-          <div class="choice-card__text">
-            <span class="choice-card__title">Generate with AI</span>
-            <span class="choice-card__desc">Gemini writes a name &amp; description for you based on the product images.</span>
-          </div>
-          <Icon icon="mdi:arrow-right" class="choice-card__arrow" />
-          <span v-if="!apiKey" class="choice-card__badge">No API key</span>
-        </button>
-
-        <button class="choice-card choice-card--manual" @click="pickMode('manual')">
-          <div class="choice-card__icon">
-            <Icon icon="mdi:pencil-outline" width="28" height="28" />
-          </div>
-          <div class="choice-card__text">
-            <span class="choice-card__title">Set Manually</span>
-            <span class="choice-card__desc">Type the product name and description yourself.</span>
-          </div>
-          <Icon icon="mdi:arrow-right" class="choice-card__arrow" />
-        </button>
-      </div>
-
-      <!-- ── Form ── -->
-      <template v-else>
-        <div class="modal-content custom-scrollbar">
-          <div v-if="error" class="error-banner">
-            <div class="error-info">
-              <Icon icon="mdi:alert-circle" width="18" height="18" />
-              <span>{{ error }}</span>
+        <!-- ── Choice Screen ── -->
+        <div v-if="formMode === 'choice'" class="flex flex-col gap-4 p-6">
+          <button
+            class="group flex items-center gap-4 w-full p-5 bg-white/2 border border-[var(--color-border)] rounded-[var(--radius-xl)] text-left cursor-pointer transition-all duration-200 relative hover:enabled:bg-white/5 hover:enabled:border-[rgba(var(--color-electric-rgb),0.3)] hover:enabled:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-white/1"
+            :disabled="!apiKey"
+            @click="pickMode('ai')"
+          >
+            <div class="w-[52px] h-[52px] rounded-[var(--radius-lg)] flex items-center justify-center shrink-0 bg-[rgba(var(--color-electric-rgb),0.1)] text-[var(--color-electric)]">
+              <Icon icon="mdi:auto-fix" width="28" height="28" />
             </div>
-            <button
-              type="button"
-              class="refetch-btn"
-              :disabled="isLoadingCategories"
-              @click="loadCategories"
-            >
-              <Icon icon="mdi:refresh" :class="{ 'animate-spin': isLoadingCategories }" width="14" height="14" />
-              <span>Retry</span>
-            </button>
-          </div>
+            <div class="flex flex-col gap-1 flex-1">
+              <span class="text-[16px] font-semibold text-[var(--color-text-primary)]">Generate with AI</span>
+              <span class="text-[13px] text-[var(--color-text-muted)] leading-[1.4]">Gemini writes a name &amp; description for you based on the product images.</span>
+            </div>
+            <Icon icon="mdi:arrow-right" class="text-[var(--color-text-muted)] transition-all duration-200 shrink-0 group-hover:enabled:translate-x-1 group-hover:enabled:text-[var(--color-electric)]" />
+            <span v-if="!apiKey" class="absolute top-3 right-3 text-[10px] font-semibold text-[var(--color-error)] bg-[rgba(var(--color-error-rgb),0.1)] py-[2px] px-2 rounded-full uppercase">No API key</span>
+          </button>
 
-          <div class="form-grid">
-            <!-- Basic Info -->
-            <div class="form-section span-2">
-              <h3 class="section-title">Basic Information</h3>
-              <div class="field-group">
-                <div class="label-row">
-                  <label>Product Name <span class="required">*</span></label>
-                  <button
-                    v-if="apiKey"
-                    class="ai-regen-btn"
-                    :disabled="isGeneratingAi"
-                    @click="generateAiDetails"
-                  >
-                    <Icon :icon="isGeneratingAi ? 'mdi:loading' : 'mdi:auto-fix'" :class="{ 'animate-spin': isGeneratingAi }" />
-                    {{ isGeneratingAi ? 'Generating...' : 'AI Suggest' }}
-                  </button>
-                </div>
-                <div class="input-wrapper" :class="{ 'shimmer': isGeneratingAi }">
-                  <Icon icon="mdi:format-title" class="field-icon" />
-                  <input v-model="form.name" type="text" placeholder="e.g. Handmade Crochet Scarf" :disabled="isGeneratingAi" />
-                </div>
+          <button
+            class="group flex items-center gap-4 w-full p-5 bg-white/2 border border-[var(--color-border)] rounded-[var(--radius-xl)] text-left cursor-pointer transition-all duration-200 relative hover:enabled:bg-white/5 hover:enabled:border-[rgba(var(--color-electric-rgb),0.3)] hover:enabled:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:bg-white/1"
+            @click="pickMode('manual')"
+          >
+            <div class="w-[52px] h-[52px] rounded-[var(--radius-lg)] flex items-center justify-center shrink-0 bg-white/5 text-[var(--color-text-secondary)]">
+              <Icon icon="mdi:pencil-outline" width="28" height="28" />
+            </div>
+            <div class="flex flex-col gap-1 flex-1">
+              <span class="text-[16px] font-semibold text-[var(--color-text-primary)]">Set Manually</span>
+              <span class="text-[13px] text-[var(--color-text-muted)] leading-[1.4]">Type the product name and description yourself.</span>
+            </div>
+            <Icon icon="mdi:arrow-right" class="text-[var(--color-text-muted)] transition-all duration-200 shrink-0 group-hover:enabled:translate-x-1 group-hover:enabled:text-[var(--color-electric)]" />
+          </button>
+        </div>
+
+        <!-- ── Form ── -->
+        <template v-else>
+          <div class="flex-1 overflow-y-auto p-6 custom-scrollbar">
+            <div v-if="error" class="bg-[rgba(var(--color-error-rgb),0.1)] border border-[rgba(var(--color-error-rgb),0.2)] text-[var(--color-error)] p-3 px-4 rounded-[var(--radius-lg)] flex items-center justify-between gap-[10px] mb-6 text-[14px]">
+              <div class="flex items-center gap-[10px]">
+                <Icon icon="mdi:alert-circle" width="18" height="18" />
+                <span>{{ error }}</span>
               </div>
+              <button
+                type="button"
+                class="inline-flex items-center gap-[6px] bg-[rgba(var(--color-error-rgb),0.15)] border border-[rgba(var(--color-error-rgb),0.3)] rounded-[var(--radius-md)] p-1.5 px-3 text-[var(--color-error)] text-[12px] font-semibold cursor-pointer transition-all duration-200 hover:enabled:bg-[rgba(var(--color-error-rgb),0.25)] hover:enabled:border-[rgba(var(--color-error-rgb),0.5)] disabled:opacity-60 disabled:cursor-not-allowed"
+                :disabled="isLoadingCategories"
+                @click="loadCategories"
+              >
+                <Icon icon="mdi:refresh" :class="{ 'animate-spin': isLoadingCategories }" width="14" height="14" />
+                <span>Retry</span>
+              </button>
+            </div>
 
-              <div class="grid-2">
-                <BaseSelect
+            <div class="grid grid-cols-3 gap-6">
+              <!-- Basic Info -->
+              <div class="col-span-2 flex flex-col gap-4">
+                <h3 class="text-[12px] uppercase tracking-[0.1em] text-[var(--color-text-muted)] mb-4 font-semibold">Basic Information</h3>
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center justify-between">
+                    <label class="text-[13px] font-medium text-[var(--color-text-secondary)]">Product Name <span class="text-[var(--color-error)]">*</span></label>
+                    <button
+                      v-if="apiKey"
+                      class="flex items-center gap-[5px] py-[5px] px-3 text-[11px] font-semibold text-[var(--color-electric)] bg-[rgba(var(--color-electric-rgb),0.08)] border border-[rgba(var(--color-electric-rgb),0.2)] rounded-full cursor-pointer transition-all duration-200 hover:enabled:bg-[rgba(var(--color-electric-rgb),0.15)] hover:enabled:border-[rgba(var(--color-electric-rgb),0.4)] disabled:opacity-60 disabled:cursor-not-allowed"
+                      :disabled="isGeneratingAi"
+                      @click="generateAiDetails"
+                    >
+                      <Icon :icon="isGeneratingAi ? 'mdi:loading' : 'mdi:auto-fix'" :class="{ 'animate-spin': isGeneratingAi }" />
+                      {{ isGeneratingAi ? 'Generating...' : 'AI Suggest' }}
+                    </button>
+                  </div>
+                  <div class="relative flex items-center" :class="{ 'shimmer': isGeneratingAi }">
+                    <Icon icon="mdi:format-title" class="absolute left-[14px] text-[var(--color-text-muted)] pointer-events-none" />
+                    <input
+                      v-model="form.name"
+                      type="text"
+                      placeholder="e.g. Handmade Crochet Scarf"
+                      :disabled="isGeneratingAi"
+                      class="w-full bg-white/3 border border-[var(--color-border)] rounded-[var(--radius-lg)] py-3 px-4 pl-[42px] text-[var(--color-text-primary)] text-[14px] transition-all duration-200 focus:border-[var(--color-electric)] focus:bg-white/5 focus:outline-none focus:shadow-[0_0_0_4px_rgba(var(--color-electric-rgb),0.1)]"
+                    />
+                  </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4">
+                  <BaseSelect
                     v-model="form.categoryId"
                     :options="categories"
                     label="Category"
@@ -275,352 +299,142 @@ async function handleSubmit() {
                     :disabled="isLoadingCategories"
                     :placeholder="isLoadingCategories ? 'Loading categories...' : 'Select a category'"
                   />
-                <div class="field-group">
-                  <label>Stock Quantity</label>
-                  <div class="input-wrapper">
-                    <Icon icon="mdi:archive-outline" class="field-icon" />
-                    <input v-model="form.stockQty" type="number" min="0" />
-                  </div>
-                </div>
-              </div>
-
-              <div class="field-group">
-                <label>Description</label>
-                <div class="desc-field-wrap" :class="{ 'shimmer': isGeneratingAi }">
-                  <textarea v-model="form.description" rows="4" placeholder="Describe the craftsmanship..." :disabled="isGeneratingAi"></textarea>
-                  <div v-if="isGeneratingAi" class="desc-loading-overlay">
-                    <Icon icon="mdi:loading" class="animate-spin" width="20" height="20" />
-                    <span>Gemini is writing...</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Pricing -->
-            <div class="form-section">
-              <h3 class="section-title">Value &amp; Visibility</h3>
-              <div class="field-group">
-                <label>Base Price (Rs) <span class="required">*</span></label>
-                <div class="input-wrapper">
-                  <Icon icon="mdi:currency-usd" class="field-icon" />
-                  <input v-model="form.basePrice" type="number" step="0.01" placeholder="0.00" />
-                </div>
-              </div>
-              <div class="field-group">
-                <label>Discount (%)</label>
-                <div class="input-wrapper">
-                  <Icon icon="mdi:percent" class="field-icon" />
-                  <input v-model="form.discountPercentage" type="number" min="0" max="100" />
-                </div>
-              </div>
-
-              <div class="toggle-group">
-                <div class="toggle-item">
-                  <div class="toggle-label">
-                    <span class="main-label">Available</span>
-                    <span class="sub-label">Public in catalog</span>
-                  </div>
-                  <input type="checkbox" v-model="form.isAvailable" class="ios-switch" />
-                </div>
-                <div class="toggle-item">
-                  <div class="toggle-label">
-                    <span class="main-label">Bespoke</span>
-                    <span class="sub-label">Customizable</span>
-                  </div>
-                  <input type="checkbox" v-model="form.isCustomizable" class="ios-switch" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Image Selection -->
-            <div class="form-section span-3">
-              <h3 class="section-title">Select Images to Upload</h3>
-              <div class="image-selector-grid">
-                <div v-for="img in generatedImages" :key="img.id" class="image-select-card" :class="{
-                  'is-selected': selectedImageIds.has(img.id),
-                  'is-primary': primaryImageId === img.id
-                }" @click="toggleImage(img.id)">
-                  <img :src="img.url" :alt="img.shotLabel" />
-                  <div class="image-overlay">
-                    <div class="check-icon">
-                      <Icon :icon="selectedImageIds.has(img.id) ? 'mdi:check-circle' : 'mdi:circle-outline'" />
+                  <div class="flex flex-col gap-2">
+                    <label class="text-[13px] font-medium text-[var(--color-text-secondary)]">Stock Quantity</label>
+                    <div class="relative flex items-center">
+                      <Icon icon="mdi:archive-outline" class="absolute left-[14px] text-[var(--color-text-muted)] pointer-events-none" />
+                      <input
+                        v-model="form.stockQty"
+                        type="number"
+                        min="0"
+                        class="w-full bg-white/3 border border-[var(--color-border)] rounded-[var(--radius-lg)] py-3 px-4 pl-[42px] text-[var(--color-text-primary)] text-[14px] transition-all duration-200 focus:border-[var(--color-electric)] focus:bg-white/5 focus:outline-none focus:shadow-[0_0_0_4px_rgba(var(--color-electric-rgb),0.1)]"
+                      />
                     </div>
-                    <span class="shot-badge">{{ img.shotLabel }}</span>
-                    <button v-if="selectedImageIds.has(img.id)" class="primary-toggle-btn"
-                      :class="{ 'active': primaryImageId === img.id }" @click.stop="primaryImageId = img.id">
-                      <Icon :icon="primaryImageId === img.id ? 'mdi:star' : 'mdi:star-outline'" />
-                      {{ primaryImageId === img.id ? 'Primary' : 'Set Primary' }}
-                    </button>
+                  </div>
+                </div>
+
+                <div class="flex flex-col gap-2">
+                  <label class="text-[13px] font-medium text-[var(--color-text-secondary)]">Description</label>
+                  <div class="relative w-full" :class="{ 'shimmer': isGeneratingAi }">
+                    <textarea
+                      v-model="form.description"
+                      rows="4"
+                      placeholder="Describe the craftsmanship..."
+                      :disabled="isGeneratingAi"
+                      class="w-full bg-white/3 border border-[var(--color-border)] rounded-[var(--radius-lg)] py-3 px-4 pl-4 resize-none text-[var(--color-text-primary)] text-[14px] transition-all duration-200 focus:border-[var(--color-electric)] focus:bg-white/5 focus:outline-none focus:shadow-[0_0_0_4px_rgba(var(--color-electric-rgb),0.1)]"
+                    ></textarea>
+                    <div v-if="isGeneratingAi" class="absolute inset-0 bg-[rgba(17,19,24,0.85)] flex flex-col items-center justify-center gap-2 rounded-[var(--radius-lg)] text-[var(--color-text-primary)] text-[13px] backdrop-blur-[2px] z-10">
+                      <Icon icon="mdi:loading" class="animate-spin" width="20" height="20" />
+                      <span>Gemini is writing...</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pricing -->
+              <div class="flex flex-col gap-4">
+                <h3 class="text-[12px] uppercase tracking-[0.1em] text-[var(--color-text-muted)] mb-4 font-semibold">Value &amp; Visibility</h3>
+                <div class="flex flex-col gap-2">
+                  <label class="text-[13px] font-medium text-[var(--color-text-secondary)]">Base Price (Rs) <span class="text-[var(--color-error)]">*</span></label>
+                  <div class="relative flex items-center">
+                    <Icon icon="mdi:currency-usd" class="absolute left-[14px] text-[var(--color-text-muted)] pointer-events-none" />
+                    <input
+                      v-model="form.basePrice"
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      class="w-full bg-white/3 border border-[var(--color-border)] rounded-[var(--radius-lg)] py-3 px-4 pl-[42px] text-[var(--color-text-primary)] text-[14px] transition-all duration-200 focus:border-[var(--color-electric)] focus:bg-white/5 focus:outline-none focus:shadow-[0_0_0_4px_rgba(var(--color-electric-rgb),0.1)]"
+                    />
+                  </div>
+                </div>
+                <div class="flex flex-col gap-2">
+                  <label class="text-[13px] font-medium text-[var(--color-text-secondary)]">Discount (%)</label>
+                  <div class="relative flex items-center">
+                    <Icon icon="mdi:percent" class="absolute left-[14px] text-[var(--color-text-muted)] pointer-events-none" />
+                    <input
+                      v-model="form.discountPercentage"
+                      type="number"
+                      min="0"
+                      max="100"
+                      class="w-full bg-white/3 border border-[var(--color-border)] rounded-[var(--radius-lg)] py-3 px-4 pl-[42px] text-[var(--color-text-primary)] text-[14px] transition-all duration-200 focus:border-[var(--color-electric)] focus:bg-white/5 focus:outline-none focus:shadow-[0_0_0_4px_rgba(var(--color-electric-rgb),0.1)]"
+                    />
+                  </div>
+                </div>
+
+                <div class="bg-white/2 border border-[var(--color-border)] rounded-[var(--radius-xl)] p-2 flex flex-col gap-1">
+                  <div class="flex items-center justify-between p-3 rounded-[var(--radius-lg)] transition-colors duration-200 hover:bg-white/3">
+                    <div class="flex flex-col">
+                      <span class="text-[14px] font-medium">Available</span>
+                      <span class="text-[11px] text-[var(--color-text-muted)]">Public in catalog</span>
+                    </div>
+                    <input type="checkbox" v-model="form.isAvailable" class="ios-switch" />
+                  </div>
+                  <div class="flex items-center justify-between p-3 rounded-[var(--radius-lg)] transition-colors duration-200 hover:bg-white/3">
+                    <div class="flex flex-col">
+                      <span class="text-[14px] font-medium">Bespoke</span>
+                      <span class="text-[11px] text-[var(--color-text-muted)]">Customizable</span>
+                    </div>
+                    <input type="checkbox" v-model="form.isCustomizable" class="ios-switch" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Image Selection -->
+              <div class="col-span-3 flex flex-col gap-4">
+                <h3 class="text-[12px] uppercase tracking-[0.1em] text-[var(--color-text-muted)] mb-4 font-semibold">Select Images to Upload</h3>
+                <div class="grid grid-cols-[repeat(auto-fill,minmax(180px,1fr))] gap-4">
+                  <div
+                    v-for="img in generatedImages"
+                    :key="img.id"
+                    class="group aspect-square rounded-[var(--radius-xl)] overflow-hidden relative border-2 cursor-pointer transition-all duration-200"
+                    :class="[
+                      selectedImageIds.has(img.id) ? 'border-[var(--color-electric)]' : 'border-transparent'
+                    ]"
+                    @click="toggleImage(img.id)"
+                  >
+                    <img :src="img.url" :alt="img.shotLabel" class="w-full h-full transition-transform duration-300 group-hover:scale-105" />
+                    <div
+                      class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pb-3 px-3 pt-3 flex flex-col justify-between transition-opacity duration-200"
+                      :class="[selectedImageIds.has(img.id) ? 'opacity-100' : 'opacity-80 group-hover:opacity-100']"
+                    >
+                      <div
+                        class="self-end text-white filter drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]"
+                        :class="selectedImageIds.has(img.id) ? 'text-[var(--color-electric)]' : 'text-white'"
+                      >
+                        <Icon :icon="selectedImageIds.has(img.id) ? 'mdi:check-circle' : 'mdi:circle-outline'" />
+                      </div>
+                      <span class="text-[10px] bg-black/50 text-white py-[2px] px-2 rounded-full self-start backdrop-blur-[4px]">{{ img.shotLabel }}</span>
+                      <button
+                        v-if="selectedImageIds.has(img.id)"
+                        class="mt-2 w-full p-1.5 bg-white/10 backdrop-blur-[4px] rounded-[var(--radius-md)] text-[11px] font-semibold text-white flex items-center justify-center gap-1.5 transition-all duration-200 hover:bg-white/20"
+                        :class="{ 'bg-[var(--color-electric)]': primaryImageId === img.id }"
+                        @click.stop="primaryImageId = img.id"
+                      >
+                        <Icon :icon="primaryImageId === img.id ? 'mdi:star' : 'mdi:star-outline'" />
+                        {{ primaryImageId === img.id ? 'Primary' : 'Set Primary' }}
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <div class="modal-footer">
-          <button class="btn-ghost" @click="emit('close')" :disabled="isSubmitting">Cancel</button>
-          <button class="btn-primary" @click="handleSubmit" :disabled="isSubmitting || isGeneratingAi">
-            <Icon v-if="isSubmitting" icon="mdi:loading" class="animate-spin" />
-            <Icon v-else icon="mdi:cloud-upload" />
-            <span>{{ isSubmitting ? 'Pushing to Store...' : 'Confirm &amp; Push' }}</span>
-          </button>
-        </div>
-      </template>
+          <div class="py-5 px-6 border-t border-[var(--color-border)] flex items-center justify-end gap-3">
+            <button class="btn-ghost" @click="emit('close')" :disabled="isSubmitting">Cancel</button>
+            <button class="btn-primary" @click="handleSubmit" :disabled="isSubmitting || isGeneratingAi">
+              <Icon v-if="isSubmitting" icon="mdi:loading" class="animate-spin" />
+              <Icon v-else icon="mdi:cloud-upload" />
+              <span>{{ isSubmitting ? 'Pushing to Store...' : 'Confirm &amp; Push' }}</span>
+            </button>
+          </div>
+        </template>
+      </div>
     </div>
-  </div>
   </Teleport>
 </template>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(8px);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
-}
-
-.product-form-modal {
-  width: 100%;
-  max-width: 900px;
-  max-height: 90vh;
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-2xl);
-  display: flex;
-  flex-direction: column;
-  box-shadow: var(--shadow-2xl);
-}
-
-.modal-header {
-  padding: 24px;
-  border-bottom: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.header-icon {
-  width: 48px;
-  height: 48px;
-  background: rgba(var(--color-electric-rgb), 0.1);
-  color: var(--color-electric);
-  border-radius: var(--radius-xl);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.header-text h2 {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.header-text p {
-  font-size: 14px;
-  color: var(--color-text-muted);
-}
-
-.close-btn {
-  margin-left: auto;
-  padding: 8px;
-  border-radius: 50%;
-  color: var(--color-text-muted);
-  transition: all 0.2s;
-}
-
-.close-btn:hover {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--color-text-primary);
-}
-
-.modal-content {
-  flex: 1;
-  overflow-y: auto;
-  padding: 24px;
-}
-
-.error-banner {
-  background: rgba(var(--color-error-rgb), 0.1);
-  border: 1px solid rgba(var(--color-error-rgb), 0.2);
-  color: var(--color-error);
-  padding: 12px 16px;
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 24px;
-  font-size: 14px;
-}
-
-.error-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.refetch-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: rgba(var(--color-error-rgb), 0.15);
-  border: 1px solid rgba(var(--color-error-rgb), 0.3);
-  border-radius: var(--radius-md);
-  padding: 6px 12px;
-  color: var(--color-error);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.refetch-btn:hover:not(:disabled) {
-  background: rgba(var(--color-error-rgb), 0.25);
-  border-color: rgba(var(--color-error-rgb), 0.5);
-}
-
-.refetch-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-}
-
-.span-2 {
-  grid-column: span 2;
-}
-
-.span-3 {
-  grid-column: span 3;
-}
-
-.section-title {
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--color-text-muted);
-  margin-bottom: 16px;
-  font-weight: 600;
-}
-
-.form-section {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.field-group {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.field-group label {
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-}
-
-.required {
-  color: var(--color-error);
-}
-
-.input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.field-icon {
-  position: absolute;
-  left: 14px;
-  color: var(--color-text-muted);
-  pointer-events: none;
-}
-
-input,
-select,
-textarea {
-  width: 100%;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 12px 16px;
-  padding-left: 42px;
-  color: var(--color-text-primary);
-  font-size: 14px;
-  transition: all 0.2s;
-}
-
-textarea {
-  padding-left: 16px;
-  resize: none;
-}
-
-input:focus,
-select:focus,
-textarea:focus {
-  border-color: var(--color-electric);
-  background: rgba(255, 255, 255, 0.05);
-  outline: none;
-  box-shadow: 0 0 0 4px rgba(var(--color-electric-rgb), 0.1);
-}
-
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16px;
-}
-
-.toggle-group {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.toggle-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 12px;
-  border-radius: var(--radius-lg);
-  transition: background 0.2s;
-}
-
-.toggle-item:hover {
-  background: rgba(255, 255, 255, 0.03);
-}
-
-.toggle-label {
-  display: flex;
-  flex-direction: column;
-}
-
-.main-label {
-  font-size: 14px;
-  font-weight: 500;
-}
-
-.sub-label {
-  font-size: 11px;
-  color: var(--color-text-muted);
-}
-
 /* Custom iOS Style Switch */
 .ios-switch {
   appearance: none;
@@ -655,109 +469,6 @@ textarea:focus {
   transform: translateX(18px);
 }
 
-/* Image Selector */
-.image-selector-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 16px;
-}
-
-.image-select-card {
-  aspect-ratio: 1;
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  position: relative;
-  border: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.image-select-card.is-selected {
-  border-color: var(--color-electric);
-}
-
-.image-select-card img {
-  width: 100%;
-  height: 100%;
-  transition: transform 0.3s;
-}
-
-.image-select-card:hover img {
-  transform: scale(1.05);
-}
-
-.image-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent 60%);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 12px;
-  opacity: 0.8;
-  transition: opacity 0.2s;
-}
-
-.image-select-card:hover .image-overlay,
-.image-select-card.is-selected .image-overlay {
-  opacity: 1;
-}
-
-.check-icon {
-  align-self: flex-end;
-  color: #fff;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
-}
-
-.is-selected .check-icon {
-  color: var(--color-electric);
-}
-
-.shot-badge {
-  font-size: 10px;
-  background: rgba(0, 0, 0, 0.5);
-  color: #fff;
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  align-self: flex-start;
-  backdrop-filter: blur(4px);
-}
-
-.primary-toggle-btn {
-  margin-top: 8px;
-  width: 100%;
-  padding: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(4px);
-  border-radius: var(--radius-md);
-  font-size: 11px;
-  font-weight: 600;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  transition: all 0.2s;
-}
-
-.primary-toggle-btn:hover {
-  background: rgba(255, 255, 255, 0.2);
-}
-
-.primary-toggle-btn.active {
-  background: var(--color-electric);
-  color: #fff;
-}
-
-.modal-footer {
-  padding: 20px 24px;
-  border-top: 1px solid var(--color-border);
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-}
-
 .animate-slide-up {
   animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -785,37 +496,6 @@ textarea:focus {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 10px;
-}
-
-.label-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.ai-regen-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--color-electric);
-  background: rgba(var(--color-electric-rgb), 0.08);
-  border: 1px solid rgba(var(--color-electric-rgb), 0.2);
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.ai-regen-btn:hover:not(:disabled) {
-  background: rgba(var(--color-electric-rgb), 0.15);
-  border-color: rgba(var(--color-electric-rgb), 0.4);
-}
-
-.ai-regen-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
 }
 
 .shimmer {
@@ -853,129 +533,5 @@ textarea:focus {
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
-}
-
-/* Choice Screen Styling */
-.modal--choice {
-  max-width: 500px !important;
-}
-
-.choice-body {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 24px;
-}
-
-.choice-card {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  width: 100%;
-  padding: 20px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  position: relative;
-}
-
-.choice-card:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.05);
-  border-color: rgba(var(--color-electric-rgb), 0.3);
-  transform: translateY(-2px);
-}
-
-.choice-card:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  background: rgba(255, 255, 255, 0.01);
-}
-
-.choice-card__icon {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.choice-card--ai .choice-card__icon {
-  background: rgba(var(--color-electric-rgb), 0.1);
-  color: var(--color-electric);
-}
-
-.choice-card--manual .choice-card__icon {
-  background: rgba(255, 255, 255, 0.05);
-  color: var(--color-text-secondary);
-}
-
-.choice-card__text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-}
-
-.choice-card__title {
-  font-size: 16px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.choice-card__desc {
-  font-size: 13px;
-  color: var(--color-text-muted);
-  line-height: 1.4;
-}
-
-.choice-card__arrow {
-  color: var(--color-text-muted);
-  transition: transform 0.2s, color 0.2s;
-  flex-shrink: 0;
-}
-
-.choice-card:hover:not(:disabled) .choice-card__arrow {
-  transform: translateX(4px);
-  color: var(--color-electric);
-}
-
-.choice-card__badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 10px;
-  font-weight: 600;
-  color: var(--color-error);
-  background: rgba(var(--color-error-rgb), 0.1);
-  padding: 2px 8px;
-  border-radius: var(--radius-full);
-  text-transform: uppercase;
-}
-
-/* Description Loading Overlay */
-.desc-field-wrap {
-  position: relative;
-  width: 100%;
-}
-
-.desc-loading-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(17, 19, 24, 0.85);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  border-radius: var(--radius-lg);
-  color: var(--color-text-primary);
-  font-size: 13px;
-  backdrop-filter: blur(2px);
-  z-index: 10;
 }
 </style>

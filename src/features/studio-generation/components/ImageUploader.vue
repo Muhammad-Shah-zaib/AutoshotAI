@@ -118,7 +118,7 @@ function clearImage() {
 </script>
 
 <template>
-  <div class="uploader-root">
+  <div class="flex flex-col gap-2.5 w-full h-full">
     <!-- Hidden file input -->
     <input
       id="product-image-input"
@@ -129,72 +129,72 @@ function clearImage() {
     />
 
     <!-- ── Preview State ── -->
-    <div v-if="hasImage" class="preview-state">
-      <div class="preview-image-wrap">
-        <img :src="previewDataUrl" alt="Uploaded product" class="preview-img" />
+    <div v-if="hasImage" class="flex flex-col items-center gap-2.5 w-full">
+      <div class="relative w-full rounded-[var(--radius-lg)] overflow-hidden border border-[var(--color-border)] bg-[var(--color-elevated)]">
+        <img :src="previewDataUrl" alt="Uploaded product" class="w-full aspect-square object-contain block bg-[var(--color-elevated)]" />
 
         <!-- Clear button -->
-        <button class="clear-btn" @click="clearImage" title="Remove image">
+        <button class="absolute top-2.5 right-2.5 w-8 h-8 rounded-full border border-white/15 bg-black/60 backdrop-blur-[8px] text-white cursor-pointer flex items-center justify-center transition-all duration-200 ease-out hover:bg-[rgba(147,0,10,0.6)] hover:border-[rgba(255,180,171,0.3)]" @click="clearImage" title="Remove image">
           <Icon icon="mdi:close" width="16" height="16" stroke-width="2.5" />
         </button>
 
         <!-- Compression badge -->
-        <div v-if="imageMeta?.wasCompressed" class="compressed-badge">
+        <div v-if="imageMeta?.wasCompressed" class="absolute bottom-2.5 left-2.5 flex items-center gap-[5px] py-1 px-2.5 font-medium text-[11px] text-[#22c55e] bg-black/60 backdrop-blur-[8px] border border-[rgba(34,197,94,0.2)] rounded-full">
           <Icon icon="mdi:check-bold" width="12" height="12" />
           Compressed
         </div>
       </div>
 
       <!-- Meta row -->
-      <div class="preview-meta" v-if="imageMeta">
-        <span class="meta-name">{{ imageMeta.originalName }}</span>
-        <span class="meta-sep">·</span>
+      <div class="flex items-center gap-1.5 text-[12px] text-[var(--color-text-muted)] flex-wrap justify-center" v-if="imageMeta">
+        <span class="text-[var(--color-text-secondary)] font-medium max-w-[200px] overflow-hidden text-ellipsis whitespace-nowrap">{{ imageMeta.originalName }}</span>
+        <span class="opacity-40">·</span>
         <span class="meta-size">{{ formatBytes(imageMeta.finalSize) }}</span>
-        <span v-if="imageMeta.wasCompressed" class="meta-saved">
+        <span v-if="imageMeta.wasCompressed" class="text-[#22c55e]">
           (from {{ formatBytes(imageMeta.originalSize) }})
         </span>
       </div>
 
       <!-- Re-upload link -->
-      <button class="reupload-link" @click="openFilePicker">
+      <button class="bg-none border-none text-[12px] text-[var(--color-electric)] cursor-pointer underline underline-offset-[3px] font-sans transition-opacity duration-200 hover:opacity-70" @click="openFilePicker">
         Change image
       </button>
     </div>
 
     <!-- ── Processing State ── -->
-    <div v-else-if="isProcessing" class="processing-state">
-      <div class="spinner-ring"></div>
-      <p class="processing-label">{{ processingStatus }}</p>
+    <div v-else-if="isProcessing" class="flex-1 flex flex-col items-center justify-center gap-4 min-h-[280px]">
+      <div class="w-10 h-10 border-[2.5px] border-solid border-[var(--color-border)] border-t-[var(--color-electric)] rounded-full animate-spin"></div>
+      <p class="text-[14px] text-[var(--color-text-secondary)]">{{ processingStatus }}</p>
     </div>
 
     <!-- ── Drop Zone ── -->
     <div
       v-else
-      class="drop-zone"
-      :class="{ 'drop-zone--active': isDragging }"
+      class="group flex-1 flex flex-col items-center justify-center gap-3 py-8 px-6 border-[1.5px] border-dashed rounded-[var(--radius-xl)] cursor-pointer transition-all duration-250 ease-out text-center min-h-[280px]"
+      :class="isDragging ? 'border-[var(--color-electric)] bg-[rgba(0,112,243,0.06)] shadow-[0_0_0_3px_rgba(0,112,243,0.1)]' : 'border-[var(--color-border)] hover:border-[var(--color-electric)] hover:bg-[rgba(0,112,243,0.03)]'"
       @dragenter="onDragEnter"
       @dragleave="onDragLeave"
       @dragover="onDragOver"
       @drop="onDrop"
       @click="openFilePicker"
     >
-      <div class="drop-icon">
+      <div class="text-[var(--color-outline)] transition-colors duration-200" :class="isDragging ? 'text-[var(--color-electric)]' : 'text-[var(--color-outline)] group-hover:text-[var(--color-electric)]'">
         <Icon icon="mdi:upload-outline" width="40" height="40" />
       </div>
-      <p class="drop-title">
+      <p class="text-[15px] font-medium text-[var(--color-text-secondary)]">
         <span v-if="isDragging">Drop your product image here</span>
         <span v-else>Drag &amp; drop your product photo</span>
       </p>
-      <p class="drop-subtitle">or click to browse · JPG, PNG, WebP</p>
-      <button class="btn-secondary upload-browse-btn" type="button" @click.stop="openFilePicker">
+      <p class="text-[12px] text-[var(--color-text-muted)] -mt-1">or click to browse · JPG, PNG, WebP</p>
+      <button class="btn-secondary py-2 px-5 text-[13px] mt-1" type="button" @click.stop="openFilePicker">
         Browse Files
       </button>
-      <p class="drop-limit">Supports up to any size · large images auto-compressed to ~1 MB</p>
+      <p class="text-[11px] text-[var(--color-text-muted)] -mt-1 opacity-70">Supports up to any size · large images auto-compressed to ~1 MB</p>
     </div>
 
     <!-- Error -->
     <Transition name="slide-fade">
-      <div v-if="uploadError" class="upload-error">
+      <div v-if="uploadError" class="flex items-center gap-2 py-2.5 px-3.5 text-[13px] text-[var(--color-error)] bg-[rgba(147,0,10,0.08)] border border-[rgba(255,180,171,0.12)] rounded-[var(--radius-DEFAULT)]">
         <Icon icon="mdi:alert-circle-outline" width="16" height="16" />
         {{ uploadError }}
       </div>
@@ -203,226 +203,12 @@ function clearImage() {
 </template>
 
 <style scoped>
-.uploader-root {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 100%;
-  height: 100%;
-}
-
-/* ── Drop Zone ── */
-.drop-zone {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 32px 24px;
-  border: 1.5px dashed var(--color-border);
-  border-radius: var(--radius-xl);
-  cursor: pointer;
-  transition: all 0.25s ease;
-  text-align: center;
-  min-height: 280px;
-}
-
-.drop-zone:hover {
-  border-color: var(--color-electric);
-  background: rgba(0, 112, 243, 0.03);
-}
-
-.drop-zone--active {
-  border-color: var(--color-electric);
-  background: rgba(0, 112, 243, 0.06);
-  box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.1);
-}
-
-.drop-icon {
-  color: var(--color-outline);
-  transition: color 0.2s ease;
-}
-
-.drop-zone:hover .drop-icon,
-.drop-zone--active .drop-icon {
-  color: var(--color-electric);
-}
-
-.drop-title {
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--color-text-secondary);
-}
-
-.drop-subtitle {
-  font-size: 12px;
-  color: var(--color-text-muted);
-  margin-top: -4px;
-}
-
-.upload-browse-btn {
-  padding: 8px 20px;
-  font-size: 13px;
-  margin-top: 4px;
-}
-
-.drop-limit {
-  font-size: 11px;
-  color: var(--color-text-muted);
-  margin-top: -4px;
-  opacity: 0.7;
-}
-
-/* ── Processing State ── */
-.processing-state {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
-  min-height: 280px;
-}
-
-.spinner-ring {
-  width: 40px;
-  height: 40px;
-  border: 2.5px solid var(--color-border);
-  border-top-color: var(--color-electric);
-  border-radius: 50%;
+.animate-spin {
   animation: spin 0.8s linear infinite;
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
-}
-
-.processing-label {
-  font-size: 14px;
-  color: var(--color-text-secondary);
-}
-
-/* ── Preview State ── */
-.preview-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-}
-
-.preview-image-wrap {
-  position: relative;
-  width: 100%;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  border: 1px solid var(--color-border);
-  background: var(--color-elevated);
-}
-
-.preview-img {
-  width: 100%;
-  aspect-ratio: 1 / 1;
-  object-fit: contain;
-  display: block;
-  background: var(--color-elevated);
-}
-
-.clear-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  color: #fff;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-}
-
-.clear-btn:hover {
-  background: rgba(147, 0, 10, 0.6);
-  border-color: rgba(255, 180, 171, 0.3);
-}
-
-.compressed-badge {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 500;
-  color: #22c55e;
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(34, 197, 94, 0.2);
-  border-radius: var(--radius-full);
-}
-
-.preview-meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12px;
-  color: var(--color-text-muted);
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.meta-name {
-  color: var(--color-text-secondary);
-  font-weight: 500;
-  max-width: 200px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.meta-sep {
-  opacity: 0.4;
-}
-
-.meta-saved {
-  color: #22c55e;
-}
-
-.reupload-link {
-  background: none;
-  border: none;
-  font-size: 12px;
-  color: var(--color-electric);
-  cursor: pointer;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  font-family: var(--font-sans);
-  transition: opacity 0.2s ease;
-}
-
-.reupload-link:hover {
-  opacity: 0.7;
-}
-
-/* ── Error ── */
-.upload-error {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  font-size: 13px;
-  color: var(--color-error);
-  background: rgba(147, 0, 10, 0.08);
-  border: 1px solid rgba(255, 180, 171, 0.12);
-  border-radius: var(--radius-DEFAULT);
 }
 
 .slide-fade-enter-active { transition: all 0.3s ease; }

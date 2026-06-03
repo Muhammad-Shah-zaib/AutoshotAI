@@ -84,49 +84,49 @@ function handlePushSuccess() {
 }
 
 </script>
-
 <template>
-  <div class="gallery-view animate-fade-in">
+  <div class="pb-10 animate-fade-in">
     <!-- Gallery Header -->
-    <div class="gallery-header">
+    <div class="mb-8 flex items-end justify-between gap-6 max-[768px]:flex-col max-[768px]:items-stretch">
       <div class="header-left">
-        <div class="header-title-row">
-          <h1 class="gallery-title">Generation Batch {{ batchId }}</h1>
-          <span class="image-count-badge">{{ imageCount }} Images</span>
-          <div v-if="hasImages" class="provider-badge" :style="providerStyle">
-            <span class="provider-dot"></span>
+        <div class="flex items-center gap-3.5 flex-wrap">
+          <h1 class="text-[24px] font-semibold text-[var(--color-text-primary)] tracking-[-0.02em]">Generation Batch {{ batchId }}</h1>
+          <span class="text-[12px] font-medium text-[var(--color-electric)] bg-[rgba(0,112,243,0.1)] py-1 px-3 rounded-full">{{ imageCount }} Images</span>
+          <div v-if="hasImages" class="flex items-center gap-[7px] py-1 px-3 rounded-full text-[12px] font-semibold border border-solid whitespace-nowrap tracking-[0.01em]" :style="providerStyle">
+            <span class="w-1.5 h-1.5 rounded-full bg-current shadow-[0_0_6px_currentColor]"></span>
             <span>{{ providerLabel }}</span>
           </div>
         </div>
-        <p class="gallery-subtitle">
+        <p class="text-[14px] text-[var(--color-text-muted)] mt-2 max-w-[600px] leading-[1.6]">
           Review your AI-generated product shots below. Hover on any image to instantly compare the
           result with your original raw upload.
         </p>
       </div>
 
-      <div class="header-right">
-        <div class="secret-key-section">
-          <div class="key-input-wrapper">
-            <Icon icon="mdi:key-variant" class="key-icon" :class="{ 'is-valid': isKeyValid }" />
+      <div class="flex flex-col items-end max-[768px]:items-stretch">
+        <div class="flex flex-col gap-1.5">
+          <div class="relative flex items-center">
+            <Icon icon="mdi:key-variant" class="absolute left-3 text-[var(--color-text-muted)] transition-colors duration-300" :class="{ 'text-[var(--color-success)]': isKeyValid }" />
             <input 
               v-model="secretKey" 
               type="password" 
               placeholder="Store Secret Key..." 
               @input="handleKeyChange"
+              class="bg-white/3 border border-[var(--color-border)] rounded-[var(--radius-lg)] py-2.5 px-3.5 pl-[38px] text-[var(--color-text-primary)] text-[13px] w-[240px] transition-all duration-200 focus:border-[var(--color-electric)] focus:outline-none focus:bg-white/5 max-[768px]:w-full"
             />
           </div>
-          <span v-if="secretKey && !isKeyValid" class="key-error">Invalid Key</span>
+          <span v-if="secretKey && !isKeyValid" class="text-[11px] text-[var(--color-error)] mr-1">Invalid Key</span>
         </div>
       </div>
     </div>
 
     <!-- No Images State -->
-    <div v-if="!hasImages" class="empty-state">
+    <div v-if="!hasImages" class="flex flex-col items-center justify-center min-h-[400px] gap-4 text-center">
       <div class="empty-icon">
         <Icon icon="mdi:image-off-outline" width="64" height="64" style="color: var(--color-outline-variant)" />
       </div>
-      <h3 class="empty-title">No images generated yet</h3>
-      <p class="empty-desc">
+      <h3 class="text-[20px] font-semibold text-[var(--color-text-primary)]">No images generated yet</h3>
+      <p class="text-[14px] text-[var(--color-text-muted)] max-w-[400px]">
         Head to the Studio to configure your shot types and generate imagery.
       </p>
       <button class="btn-primary" @click="router.push({ name: 'studio' })">Go to Studio</button>
@@ -135,7 +135,7 @@ function handlePushSuccess() {
     <!-- Image Grid -->
     <div v-else class="gallery-content">
       <!-- Image Grid -->
-      <div class="image-grid">
+      <div class="grid grid-cols-[repeat(auto-fill,minmax(300px,1fr))] gap-6 max-[768px]:grid-cols-1">
         <ImageCard
           v-for="(image, index) in images"
           :key="image.id"
@@ -146,22 +146,22 @@ function handlePushSuccess() {
       </div>
 
       <!-- Bottom Actions Bar -->
-      <div class="gallery-actions">
-        <div class="actions-info">
+      <div class="mt-8 py-5 px-6 bg-white/2 border border-[var(--color-border)] rounded-[var(--radius-xl)] flex items-center justify-between gap-4 flex-wrap max-[640px]:flex-col max-[640px]:items-stretch">
+        <div class="flex items-center gap-2.5">
           <Icon icon="mdi:clock-outline" width="16" height="16" style="color: var(--color-electric)" />
-          <span class="actions-text">
+          <span class="text-[13px] text-[var(--color-text-muted)]">
             All {{ imageCount }} images successfully generated and saved to your workspace.
           </span>
         </div>
-        <div class="actions-buttons">
-          <button class="btn-secondary" @click="handleNewBatch">
+        <div class="flex items-center gap-3 max-[640px]:flex-col">
+          <button class="btn-secondary max-[640px]:w-full" @click="handleNewBatch">
             <Icon icon="mdi:refresh" width="16" height="16" />
             <span>New Batch</span>
           </button>
           
           <button
             v-if="isKeyValid"
-            class="btn-primary btn-push"
+            class="btn-primary bg-[var(--color-electric)] text-white shadow-[0_4px_14px_rgba(var(--color-electric-rgb),0.3)] hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(var(--color-electric-rgb),0.4)] max-[640px]:w-full"
             @click="showAddProductModal = true"
           >
             <Icon icon="mdi:cloud-upload" width="16" height="16" />
@@ -170,7 +170,7 @@ function handlePushSuccess() {
 
           <button
             id="download-all-btn"
-            class="btn-secondary"
+            class="btn-secondary max-[640px]:w-full"
             :disabled="isDownloadingAll"
             @click="handleDownloadAll"
           >
@@ -207,217 +207,3 @@ function handlePushSuccess() {
     />
   </div>
 </template>
-
-
-<style scoped>
-.gallery-view {
-  padding-bottom: 40px;
-}
-
-.gallery-header {
-  margin-bottom: 32px;
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 24px;
-}
-
-.header-right {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.secret-key-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.key-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.key-icon {
-  position: absolute;
-  left: 12px;
-  color: var(--color-text-muted);
-  transition: color 0.3s;
-}
-
-.key-icon.is-valid {
-  color: var(--color-success);
-}
-
-.secret-key-section input {
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: 10px 14px;
-  padding-left: 38px;
-  color: var(--color-text-primary);
-  font-size: 13px;
-  width: 240px;
-  transition: all 0.2s;
-}
-
-.secret-key-section input:focus {
-  border-color: var(--color-electric);
-  outline: none;
-  background: rgba(255, 255, 255, 0.05);
-}
-
-.key-error {
-  font-size: 11px;
-  color: var(--color-error);
-  margin-right: 4px;
-}
-
-.btn-push {
-  background: var(--color-electric);
-  color: white;
-  box-shadow: 0 4px 14px rgba(var(--color-electric-rgb), 0.3);
-}
-
-.btn-push:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(var(--color-electric-rgb), 0.4);
-}
-
-
-.header-title-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.gallery-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-  letter-spacing: -0.02em;
-}
-
-.image-count-badge {
-  font-size: 12px;
-  font-weight: 500;
-  color: var(--color-electric);
-  background: rgba(0, 112, 243, 0.1);
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-}
-
-.gallery-subtitle {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  margin-top: 8px;
-  max-width: 600px;
-  line-height: 1.6;
-}
-
-/* Provider Badge */
-.provider-badge {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-size: 12px;
-  font-weight: 600;
-  border: 1px solid;
-  white-space: nowrap;
-  letter-spacing: 0.01em;
-}
-
-.provider-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: currentColor;
-  box-shadow: 0 0 6px currentColor;
-}
-
-/* Empty State */
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 400px;
-  gap: 16px;
-  text-align: center;
-}
-
-.empty-title {
-  font-size: 20px;
-  font-weight: 600;
-  color: var(--color-text-primary);
-}
-
-.empty-desc {
-  font-size: 14px;
-  color: var(--color-text-muted);
-  max-width: 400px;
-}
-
-/* Image Grid */
-.image-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-  gap: 24px;
-}
-
-@media (max-width: 768px) {
-  .image-grid {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* Bottom Actions */
-.gallery-actions {
-  margin-top: 32px;
-  padding: 20px 24px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.actions-info {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.actions-text {
-  font-size: 13px;
-  color: var(--color-text-muted);
-}
-
-.actions-buttons {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-@media (max-width: 640px) {
-  .gallery-actions {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .actions-buttons {
-    flex-direction: column;
-  }
-  .actions-buttons .btn-primary,
-  .actions-buttons .btn-secondary {
-    width: 100%;
-  }
-}
-</style>
