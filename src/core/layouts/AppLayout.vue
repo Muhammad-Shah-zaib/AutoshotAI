@@ -5,11 +5,14 @@
  */
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Icon } from '@iconify/vue'
+import AppFooter from '@/core/components/AppFooter.vue'
 
 const route = useRoute()
 const router = useRouter()
 
 const currentStep = computed(() => route.meta?.step || 1)
+const isBlankLayout = computed(() => route.meta?.layout === 'blank')
 
 const steps = [
   { number: 1, label: 'Step 1: Gateway', name: 'gateway', icon: 'mdi:key' },
@@ -20,15 +23,19 @@ const steps = [
 function navigateToStep(step) {
   router.push({ name: step.name })
 }
+
+function goToAbout() {
+  router.push({ name: 'about' })
+}
 </script>
 
 <template>
   <div class="app-layout">
     <!-- Top Navigation Bar -->
-    <header class="app-header">
+    <header class="app-header" v-if="!isBlankLayout">
       <div class="header-inner">
         <!-- Logo -->
-        <div class="logo-area">
+        <div class="logo-area" @click="goToAbout" style="cursor: pointer" title="Go to About page">
           <div class="logo-icon">
             <svg
               width="24"
@@ -72,15 +79,22 @@ function navigateToStep(step) {
 
         <!-- Right area -->
         <div class="header-right">
-          <span class="typo-label" style="color: var(--color-text-muted)">v1.0</span>
+          <button class="about-header-btn" @click="goToAbout" title="Learn about the project">
+            <Icon icon="mdi:information-outline" class="btn-info-icon" />
+            <span>About</span>
+          </button>
+          <span class="typo-label version-label" style="color: var(--color-text-muted)">v1.0</span>
         </div>
       </div>
     </header>
 
     <!-- Main Content -->
-    <main class="app-main">
+    <main :class="isBlankLayout ? 'blank-main' : 'app-main'">
       <slot />
     </main>
+
+    <!-- Shared Footer -->
+    <AppFooter />
   </div>
 </template>
 
@@ -214,6 +228,39 @@ function navigateToStep(step) {
 
 .header-right {
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.about-header-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  padding: 6px 12px;
+  border-radius: var(--radius-DEFAULT);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.about-header-btn:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-info-icon {
+  font-size: 15px;
+}
+
+.version-label {
+  font-size: 11px;
 }
 
 .app-main {
@@ -222,5 +269,10 @@ function navigateToStep(step) {
   width: 100%;
   margin: 0 auto;
   padding: var(--spacing-gutter);
+}
+
+.blank-main {
+  flex: 1;
+  width: 100%;
 }
 </style>

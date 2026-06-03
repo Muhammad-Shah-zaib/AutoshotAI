@@ -82,6 +82,12 @@ async function handleValidate() {
 
     <!-- Gateway Card -->
     <div class="gateway-card animate-fade-in">
+      <!-- Info Button -->
+      <button class="gateway-info-btn" @click="router.push({ name: 'about' })" title="About AutoShot AI">
+        <Icon icon="mdi:information-outline" width="16" height="16" />
+        <span>Info</span>
+      </button>
+
       <!-- Icon -->
       <div class="gateway-icon">
         <Icon icon="mdi:security" width="40" height="40" style="color: var(--color-electric)" />
@@ -222,7 +228,7 @@ async function handleValidate() {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - 190px);
   position: relative;
 }
 
@@ -251,6 +257,32 @@ async function handleValidate() {
   position: relative;
   z-index: 1;
   box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.5);
+}
+
+.gateway-info-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  padding: 6px 12px;
+  border-radius: var(--radius-DEFAULT);
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  z-index: 10;
+}
+
+.gateway-info-btn:hover {
+  border-color: var(--color-border-hover);
+  color: var(--color-text-primary);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .gateway-icon {

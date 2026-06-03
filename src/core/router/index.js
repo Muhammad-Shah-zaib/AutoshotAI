@@ -8,6 +8,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 const GatewayView = () => import('@/features/api-auth/views/GatewayView.vue')
 const StudioView = () => import('@/features/studio-generation/views/StudioView.vue')
 const GalleryView = () => import('@/features/gallery-export/views/GalleryView.vue')
+const AboutView = () => import('@/features/about/views/AboutView.vue')
 
 const routes = [
   {
@@ -15,6 +16,12 @@ const routes = [
     name: 'gateway',
     component: GatewayView,
     meta: { step: 1, title: 'API Gateway' },
+  },
+  {
+    path: '/about',
+    name: 'about',
+    component: AboutView,
+    meta: { step: 0, title: 'About Us', layout: 'blank' },
   },
   {
     path: '/studio',
