@@ -91,10 +91,6 @@ function goToAbout() {
 
         <!-- Right area -->
         <div class="shrink-0 flex items-center gap-[12px]">
-          <button class="flex items-center gap-[6px] bg-transparent border border-[var(--color-border)] text-[var(--color-text-secondary)] py-[6px] px-[12px] rounded-[var(--radius-DEFAULT)] font-sans text-[12px] font-medium cursor-pointer transition-all duration-200 ease-out hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)] hover:bg-white/5" @click="goToAbout" title="Learn about the project">
-            <Icon icon="mdi:information-outline" class="text-[15px]" />
-            <span>About</span>
-          </button>
           <span class="typo-label text-[11px]" style="color: var(--color-text-muted)">v1.1</span>
         </div>
       </div>
