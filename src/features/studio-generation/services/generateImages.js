@@ -110,6 +110,34 @@ export const PRODUCT_CATEGORIES = {
         'Front-facing shot of this exact handmade crochet floral garland laid flat and centred on a light wooden dressing table. Observe the flower colours and design, then place one tiny complementary handmade crochet companion delicately to one side — chosen to echo the garland\'s palette. The individual crochet flower details are sharp and richly coloured. Warm and even indoor ambient light. A softly blurred feminine room interior behind it. Looks like a genuine and inviting e-commerce product photo.',
     },
   },
+
+  bouquets: {
+    label: 'Bouquets',
+    icon: 'mdi:flower-tulip',
+    description: 'Crochet flower bouquets — roses, tulips, mixed arrangements, and gift wraps',
+    prompts: {
+      topView:
+        'Top-down flat-lay of this exact handmade crochet flower bouquet laid on a light wooden surface indoors. Observe the bouquet\'s flower types, colours, and arrangement, then place one tiny complementary handmade crochet companion beside it — a crochet butterfly, a small crochet bee, or a crochet ribbon bow — chosen to harmonise with the bouquet\'s palette. Add a few loose yarn strands or a small spool in a toning shade nearby. Soft warm diffused daylight from a window. The wood grain faintly visible. Genuine and delicate home flat-lay, never a studio. The bouquet is the clear hero.',
+      sideView:
+        'This exact handmade crochet flower bouquet standing in a simple glass jar or wrapped in craft paper on a light wooden surface indoors, photographed from a gentle side angle. Study the bouquet\'s flower colours and arrangement, then place one tiny complementary handmade crochet companion at the base — a crochet leaf, butterfly, or small bird — selected to match the bouquet\'s palette. Soft warm ambient light from a nearby window. A softly blurred cozy room behind. The individual crochet petals and stems are sharp and clearly detailed. Natural and elegant.',
+      frontView:
+        'Front-facing shot of this exact handmade crochet flower bouquet placed centred on a light wooden table in a warm indoor room. Observe the flower colours and design, then place one tiny complementary handmade crochet accent to one side — chosen to echo the bouquet\'s palette and mood. The individual crochet flowers are crisp and richly coloured with visible stitch detail. Soft even natural light from the front. A warm room interior softly blurred behind. Looks like a genuine and inviting e-commerce product photo.',
+    },
+  },
+
+  toteBags: {
+    label: 'Tote Bags & Handbags',
+    icon: 'mdi:bag-personal',
+    description: 'Crochet totes, shoulder bags, clutches, and market bags',
+    prompts: {
+      topView:
+        'Flat-lay from directly above of this exact handmade crochet tote bag laid open on a light wooden surface indoors. Observe the bag\'s colour palette and weave pattern, then place one small complementary handmade crochet item beside it — a tiny crochet flower for market totes, a crochet coin purse for shoulder bags, or a crochet leaf for earthy styles — chosen to harmonise with the bag\'s colours. Add a small spool of toning yarn and one subtle natural accent like a dried sprig nearby. Soft diffused warm daylight from a window. The wood grain is faintly visible. Cozy and genuine home flat-lay, never a studio. The bag is the clear hero.',
+      sideView:
+        'This exact handmade crochet bag standing upright on a light wooden surface in a real indoor room, photographed from a gentle three-quarter side angle to show its depth, structure, and handle. Study the bag\'s colour palette and texture, then place one small complementary handmade crochet companion on the surface beside it — chosen to match the bag\'s style and colours. Warm ambient indoor lighting with no harsh shadows. A softly blurred cozy room interior behind. The crochet stitch texture and bag silhouette are sharp and clearly visible. Authentically homey and inviting.',
+      frontView:
+        'Front-facing shot of this exact handmade crochet bag placed upright and centred on a light wooden table in a warm indoor room. Observe the bag\'s design and colour scheme, then place one small complementary handmade crochet accent to one side — selected to echo the bag\'s mood and palette. The bag\'s texture, handle, and structure are crisp and detailed. Soft even natural light from the front. A warm room interior softly blurred behind. Looks like a genuine and professional e-commerce lifestyle product photo.',
+    },
+  },
 }
 
 // ─────────────────────────────────────────────
