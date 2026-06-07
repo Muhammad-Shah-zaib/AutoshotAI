@@ -125,6 +125,20 @@ export const PRODUCT_CATEGORIES = {
     },
   },
 
+  gloves: {
+    label: 'Gloves & Mittens',
+    icon: 'mdi:hand-back-right',
+    description: 'Crochet gloves, mittens, fingerless gloves, and wrist warmers',
+    prompts: {
+      topView:
+        'Flat-lay photograph taken from directly above of this exact pair of handmade crochet gloves laid neatly side by side on a light natural wooden surface indoors. Study the gloves\' colour palette, stitch pattern, and style, then place one small handmade crochet companion item beside them that visually complements the set — for example a tiny crochet snowflake for winter mittens, a crochet flower motif for fingerless gloves, or a small crochet heart for cozy wrist warmers — choosing whichever best harmonises with the gloves\' yarn colours and mood. Add a small spool of yarn in a toning shade and one or two subtle natural accents such as a dried sprig or a few small wooden buttons scattered casually nearby. Soft diffused warm indoor light with absolutely no harsh highlights or direct sunlight. The wooden surface grain is faintly visible. The entire scene must feel like a genuine, unposed, cozy home flat-lay — never a studio setup. The gloves are the clear hero; companion props support but never compete.',
+      sideView:
+        'This exact pair of handmade crochet gloves draped naturally over the edge of a small wooden shelf or hung from a simple wooden peg on a matte textured wall indoors, photographed from a gentle three-quarter side angle to showcase their texture, cuff detail, and silhouette. Study the gloves\' colour palette and stitch work, then place one small handmade crochet companion item on the shelf or ledge beside them — choose something that complements the gloves\' colours and character, such as a tiny crochet star for winter styles, a crochet leaf for earthy tones, or a miniature crochet animal for playful designs. Warm ambient indoor lighting with no direct sunlight and no harsh shadows. A hint of a cozy room interior softly blurred in the background. The crochet stitch texture of the gloves is sharp and clearly visible. The scene feels authentically homey and inviting.',
+      frontView:
+        'Front-facing shot of this exact pair of handmade crochet gloves placed flat and centred on a light wooden table in a warm cozy indoor room, gloves slightly overlapping for natural depth and composition. Observe the gloves\' colour palette, cuff style, and stitch detail, then arrange one or two small complementary props in the scene — a tiny handmade crochet companion such as a snowflake charm, a crochet flower, or a small yarn ball — selecting those whose colours and mood harmonise with the gloves. Soft even warm ambient room lighting with no harsh sunlight. The crochet texture is crisp and richly detailed with the stitch pattern clearly visible. The scene must feel like a real cozy room setting, not a photography studio. The gloves dominate the frame; props add warmth without clutter. Looks like a genuine and professional e-commerce product photo.',
+    },
+  },
+
   toteBags: {
     label: 'Tote Bags & Handbags',
     icon: 'mdi:bag-personal',
