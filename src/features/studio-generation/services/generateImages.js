@@ -152,6 +152,34 @@ export const PRODUCT_CATEGORIES = {
         'Front-facing shot of this exact handmade crochet bag placed upright and centred on a light wooden table in a warm indoor room. Observe the bag\'s design and colour scheme, then place one small complementary handmade crochet accent to one side — selected to echo the bag\'s mood and palette. The bag\'s texture, handle, and structure are crisp and detailed. Soft even natural light from the front. A warm room interior softly blurred behind. Looks like a genuine and professional e-commerce lifestyle product photo.',
     },
   },
+
+  wallets: {
+    label: 'Wallets & Coin Purses',
+    icon: 'mdi:wallet',
+    description: 'Crochet wallets, coin purses, card holders, and mini pouches',
+    prompts: {
+      topView:
+        'Flat-lay photograph taken from directly above of this exact handmade crochet wallet or coin purse laid closed on a light natural wooden surface indoors. Study the wallet\'s colour palette, clasp or button detail, and stitch pattern, then place one or two small complementary props beside it — a tiny crochet flower or leaf motif that harmonises with the wallet\'s colours, and two or three small coins or a folded note tucked naturally nearby to hint at the wallet\'s purpose without cluttering. Add a few loose yarn strands in a toning shade scattered softly around. Soft diffused warm indoor light with no harsh highlights or direct sunlight. The wooden surface grain is faintly visible. The entire scene must feel like a genuine unposed cozy home flat-lay — never a studio setup. The wallet is the undisputed hero; companion props support but never compete.',
+      sideView:
+        'This exact handmade crochet wallet or coin purse propped gently open on a light wooden surface in a real lived-in indoor room, photographed from a gentle three-quarter side angle to reveal its interior pocket depth, clasp mechanism, and the richness of the crochet stitch work. Study the wallet\'s colour palette and texture, then place one small complementary handmade crochet companion on the surface beside it — a tiny crochet star, leaf, or flower chosen to match the wallet\'s colours and mood. Warm ambient indoor lighting with no direct sunlight and no harsh shadows. The clasp or button detail is sharp and clearly visible. A softly blurred cozy room interior in the background. The scene feels authentically handmade and inviting.',
+      frontView:
+        'Front-facing close-up of this exact handmade crochet wallet or coin purse placed centred and slightly open on a light wooden table in a warm cozy indoor room, showing the front face, clasp, and any decorative motif. Observe the wallet\'s colour palette and character, then place one small complementary handmade crochet accent to one side — a tiny crochet heart, button flower, or charm — selected to echo the wallet\'s mood and palette. A couple of small coins resting casually nearby on the surface. Soft even warm ambient room lighting with no harsh sunlight. The crochet texture is crisp and richly detailed with the stitch pattern clearly visible. A warm room interior softly blurred behind. Looks like a genuine and professional e-commerce lifestyle product photo.',
+    },
+  },
+
+  babySets: {
+    label: 'Baby Sets',
+    icon: 'mdi:baby-face-outline',
+    description: 'Crochet baby sets — shirt or jersey, knicker, shoes, and cap combinations',
+    prompts: {
+      topView:
+        'Top-down flat-lay of this exact handmade crochet baby set arranged neatly on a light soft white or pastel wooden surface indoors — the tiny jersey or shirt laid at the top, the little knicker or bloomers below it, the miniature shoes at the bottom, and the cap placed to one side, composing the full outfit as if a small baby were gently laid there. Carefully observe the set\'s colour palette and style, then place one tiny handmade crochet companion item in a corner of the scene — a small crochet teddy bear, a crochet star, or a crochet heart — whichever best harmonises with the set\'s yarn colours and mood. Add a few loose pastel yarn strands or a tiny wooden button scattered softly nearby. Soft diffused warm indoor daylight with no harsh shadows. The surface texture is faintly visible. The scene feels tender, cozy, and genuinely handmade — never a studio setup. The complete baby set is the clear hero.',
+      sideView:
+        'This exact handmade crochet baby set displayed together on a small light wooden surface in a real bright cozy indoor room, photographed from a gentle side angle — the tiny jersey propped upright on a small wooden stand or clothes hanger, the knicker folded neatly beside it, the little shoes placed in front, and the cap resting naturally on top or to the side. Study the set\'s colour palette and stitch work, then place one small complementary handmade crochet companion on the surface nearby — a tiny crochet teddy bear or bunny chosen to harmonise with the set\'s colours. Warm soft ambient light from a nearby window catching the yarn texture of each piece. A softly blurred warm pastel room interior behind. The crochet stitching on each item is sharp and clearly detailed. The scene feels genuinely handmade, tender, and inviting.',
+      frontView:
+        'Front-facing shot of this exact handmade crochet baby set arranged together on a light wooden surface in a warm cozy indoor room — the tiny jersey hung on a small wooden hanger at the back, the knicker folded and placed in front of it, the miniature shoes set at the base, and the cap resting naturally atop the hanger. Observe the set\'s colour palette and design, then place one small complementary handmade crochet companion to one side — a tiny crochet bear, bunny, or heart charm — selected to echo the set\'s mood and colours. Soft even warm ambient room lighting with no harsh sunlight. The crochet texture across all items is crisp, richly detailed, and consistent. A warm room interior softly blurred behind. Looks like a genuine, tender, and professional e-commerce product photo for a handmade baby gift.',
+    },
+  },
 }
 
 // ─────────────────────────────────────────────
