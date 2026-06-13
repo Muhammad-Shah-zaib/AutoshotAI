@@ -6,7 +6,7 @@
  * 3. Toggles shot angles ON/OFF and edits prompts if needed
  * 4. Hits Generate → Gemini API (or mock fallback) runs per active shot
  */
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAppStore } from '@/core/store/appStore'
 import { Icon } from '@iconify/vue'
@@ -42,6 +42,48 @@ const categories = Object.entries(PRODUCT_CATEGORIES).map(([key, meta]) => ({
   description: meta.description,
 }))
 
+// Category dropdown state
+const categoryDropdownOpen = ref(false)
+const categorySearch = ref('')
+const categoryDropdownRef = ref(null)
+const categorySearchRef = ref(null)
+
+const filteredCategories = computed(() => {
+  const q = categorySearch.value.trim().toLowerCase()
+  if (!q) return categories
+  return categories.filter(
+    c => c.label.toLowerCase().includes(q) || c.description.toLowerCase().includes(q)
+  )
+})
+
+const selectedCategoryMeta = computed(
+  () => PRODUCT_CATEGORIES[store.state.selectedCategory]
+)
+
+async function toggleCategoryDropdown() {
+  categoryDropdownOpen.value = !categoryDropdownOpen.value
+  if (categoryDropdownOpen.value) {
+    categorySearch.value = ''
+    await nextTick()
+    categorySearchRef.value?.focus()
+  }
+}
+
+function pickCategory(key) {
+  store.setSelectedCategory(key)
+  categoryDropdownOpen.value = false
+  categorySearch.value = ''
+}
+
+function handleClickOutside(e) {
+  if (categoryDropdownRef.value && !categoryDropdownRef.value.contains(e.target)) {
+    categoryDropdownOpen.value = false
+  }
+}
+
+onMounted(() => document.addEventListener('mousedown', handleClickOutside))
+onUnmounted(() => document.removeEventListener('mousedown', handleClickOutside))
+
 const hasImage = computed(() => !!store.state.uploadedImage)
 const activeCount = computed(() => store.getActiveShots().length)
 
@@ -56,10 +98,6 @@ const providerStyle = computed(() => {
 
 // Generate is only possible when: image uploaded + at least one shot active
 const canGenerate = computed(() => hasImage.value && activeCount.value > 0 && !isGenerating.value)
-
-function selectCategory(key) {
-  store.setSelectedCategory(key)
-}
 
 function handleToggle(shotKey) {
   store.toggleShot(shotKey)
@@ -222,13 +260,71 @@ async function handleGenerate() {
         <div class="py-4 px-5 bg-[var(--color-surface-container)] border border-[var(--color-border)] rounded-[var(--radius-lg)]">
           <h3 class="text-[14px] font-semibold text-[var(--color-text-primary)] mb-1.5">Product Category</h3>
           <p class="text-[12px] text-[var(--color-text-muted)] mb-3.5 leading-[1.5]">Select your item type — prompts update automatically.</p>
-          <div class="flex flex-col gap-1.5">
-            <button v-for="cat in categories" :key="cat.key" class="flex items-center gap-2.5 py-2 px-3.5 font-sans text-[13px] font-medium text-[var(--color-text-secondary)] bg-white/3 border border-[var(--color-border)] rounded-[var(--radius-DEFAULT)] cursor-pointer transition-all duration-200 ease-out text-left w-full hover:border-[var(--color-border-hover)] hover:text-[var(--color-text-primary)] hover:bg-white/5"
-              :class="{ 'bg-[var(--color-primary-container)] border-[var(--color-primary)] text-[var(--color-primary)]': store.state.selectedCategory === cat.key }"
-              @click="selectCategory(cat.key)" :title="cat.description">
-              <Icon :icon="cat.icon" class="text-[16px] leading-[1] shrink-0" />
-              <span class="leading-[1.2]">{{ cat.label }}</span>
+
+          <!-- Custom searchable dropdown -->
+          <div class="relative" ref="categoryDropdownRef">
+            <!-- Trigger button -->
+            <button
+              type="button"
+              class="flex items-center justify-between gap-2 w-full py-2.5 px-3.5 text-[13px] font-medium bg-white/4 border border-[var(--color-border)] rounded-[var(--radius-DEFAULT)] cursor-pointer transition-all duration-200 hover:border-[var(--color-border-hover)] hover:bg-white/6"
+              :class="categoryDropdownOpen ? 'border-[var(--color-primary)] shadow-[0_0_0_2px_rgba(0,112,243,0.15)]' : ''"
+              @click="toggleCategoryDropdown"
+            >
+              <span class="flex items-center gap-2.5 min-w-0">
+                <Icon :icon="selectedCategoryMeta?.icon" class="text-[16px] shrink-0 text-[var(--color-primary)]" />
+                <span class="text-[var(--color-text-primary)] truncate">{{ selectedCategoryMeta?.label }}</span>
+              </span>
+              <Icon
+                icon="mdi:chevron-down"
+                class="text-[18px] text-[var(--color-text-muted)] shrink-0 transition-transform duration-200"
+                :class="categoryDropdownOpen ? 'rotate-180' : ''"
+              />
             </button>
+
+            <!-- Dropdown panel -->
+            <Transition name="dropdown">
+              <div
+                v-if="categoryDropdownOpen"
+                class="absolute top-[calc(100%+6px)] left-0 right-0 z-50 bg-[var(--color-surface-container)] border border-[var(--color-border)] rounded-[var(--radius-lg)] shadow-[0_8px_32px_rgba(0,0,0,0.45)] overflow-hidden"
+              >
+                <!-- Search input -->
+                <div class="p-2 border-b border-[var(--color-border)]">
+                  <div class="flex items-center gap-2 py-1.5 px-3 bg-white/4 border border-[var(--color-border)] rounded-[var(--radius-DEFAULT)] focus-within:border-[var(--color-primary)] focus-within:shadow-[0_0_0_2px_rgba(0,112,243,0.15)] transition-all duration-200">
+                    <Icon icon="mdi:magnify" class="text-[15px] text-[var(--color-text-muted)] shrink-0" />
+                    <input
+                      ref="categorySearchRef"
+                      v-model="categorySearch"
+                      type="text"
+                      placeholder="Search categories…"
+                      class="flex-1 bg-transparent border-none outline-none text-[12px] text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] font-sans"
+                    />
+                    <button v-if="categorySearch" @click="categorySearch = ''" class="text-[var(--color-text-muted)] hover:text-[var(--color-text-primary)] transition-colors">
+                      <Icon icon="mdi:close" class="text-[14px]" />
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Options list -->
+                <ul class="max-h-[240px] overflow-y-auto py-1 category-scroll">
+                  <li v-if="filteredCategories.length === 0" class="px-4 py-3 text-[12px] text-[var(--color-text-muted)] text-center">
+                    No categories match "{{ categorySearch }}"
+                  </li>
+                  <li
+                    v-for="cat in filteredCategories"
+                    :key="cat.key"
+                    @click="pickCategory(cat.key)"
+                    class="flex items-center gap-2.5 py-2 px-3.5 text-[13px] font-medium cursor-pointer transition-all duration-150 hover:bg-white/5"
+                    :class="store.state.selectedCategory === cat.key
+                      ? 'text-[var(--color-primary)] bg-[var(--color-primary-container)]'
+                      : 'text-[var(--color-text-secondary)]'"
+                  >
+                    <Icon :icon="cat.icon" class="text-[16px] shrink-0" />
+                    <span class="flex-1 leading-[1.2]">{{ cat.label }}</span>
+                    <Icon v-if="store.state.selectedCategory === cat.key" icon="mdi:check" class="text-[15px] shrink-0" />
+                  </li>
+                </ul>
+              </div>
+            </Transition>
           </div>
         </div>
 
@@ -296,6 +392,31 @@ async function handleGenerate() {
   50% {
     opacity: 0.4;
   }
+}
+
+/* Category dropdown transition */
+.dropdown-enter-active {
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.dropdown-leave-active {
+  transition: opacity 0.1s ease, transform 0.1s ease;
+}
+.dropdown-enter-from,
+.dropdown-leave-to {
+  opacity: 0;
+  transform: translateY(-6px);
+}
+
+/* Thin scrollbar for category list */
+.category-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.category-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.category-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
 }
 
 /* Transition */

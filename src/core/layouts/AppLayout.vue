@@ -91,7 +91,7 @@ function goToAbout() {
 
         <!-- Right area -->
         <div class="shrink-0 flex items-center gap-[12px]">
-          <span class="typo-label text-[11px]" style="color: var(--color-text-muted)">v1.1</span>
+          <span class="typo-label text-[11px]" style="color: var(--color-text-muted)">v2.0</span>
         </div>
       </div>
     </header>
