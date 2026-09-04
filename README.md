@@ -1,5 +1,7 @@
 # AutoShot AI — E-Commerce Smart Studio
 
+**Live Demo**: [https://autoshot.bunaicorner.com/](https://autoshot.bunaicorner.com/)
+
 AutoShot AI is an automated, AI-powered product photography studio. It helps e-commerce sellers turn simple, raw photos of handmade items into high-quality, professional marketing shots with custom backgrounds and matching props—all in just a few clicks.
 
 ---
